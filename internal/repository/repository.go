@@ -99,9 +99,9 @@ func (ar *AppRepo) GetUserByLogin(ctx context.Context, userLogin string) (models
 	return result, nil
 }
 
-func (ar *AppRepo) CheckOrder(ctx context.Context, userId int, orderNumber string) error {
+func (ar *AppRepo) CheckOrder(ctx context.Context, userID int, orderNumber string) error {
 	var data models.OrderInfo
-	sqlString := fmt.Sprintf("SELECT id, user_id, orders_number FROM user_orders where user_id = %v AND orders_number = '%s';", userId, orderNumber)
+	sqlString := fmt.Sprintf("SELECT id, user_id, orders_number FROM user_orders where orders_number = '%s';", orderNumber)
 	rows, err := ar.db.QueryContext(ctx, sqlString)
 	if err != nil {
 		return err
@@ -119,13 +119,13 @@ func (ar *AppRepo) CheckOrder(ctx context.Context, userId int, orderNumber strin
 			UserID: item.UserID,
 		}
 	}
-	if data.Number == "" {
+	if data.UserID == 0 {
 		return nil
 	}
 	switch {
-	case data.Number == orderNumber && data.UserID == userId:
+	case data.Number == orderNumber && data.UserID == userID:
 		return errs.ErrOrderAlreadyExists
-	case data.Number == orderNumber && data.UserID != userId:
+	case data.Number == orderNumber && data.UserID != userID:
 		return errs.ErrOrderBelongsToAnotherUser
 	}
 	return nil

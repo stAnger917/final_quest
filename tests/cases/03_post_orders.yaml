@@ -1,5 +1,18 @@
 - name: сохранение номера заказа - позитивный кейс
+  method: POST
+  path: /api/user/orders
+  cookies:
+    session_token: test_token123
+  headers:
+    Content-Type: text/plain
+  request: |
+    79927398713
 
+  response:
+    202: |
+      {"status": "ok"}
+
+- name: сохранение номера заказа - негативный кейс - заказ был уже загружен
   method: POST
   path: /api/user/orders
   cookies:
@@ -11,4 +24,72 @@
 
   response:
     200: |
-      {"status": "ok"}
+      {"status":"already uploaded!"}
+
+- name: сохранение номера заказа - негативный кейс - заказ загружен другим пользователем
+  method: POST
+  path: /api/user/orders
+  cookies:
+    session_token: test_token1234
+  headers:
+    Content-Type: text/plain
+  request: |
+    79927398713
+
+  response:
+    409: |
+      {"error":"already uploaded by another user!"}
+
+- name: сохранение номера заказа - негативный кейс - невалидный номер заказа
+  method: POST
+  path: /api/user/orders
+  cookies:
+    session_token: test_token123
+  headers:
+    Content-Type: text/plain
+  request: |
+    7992739871377777
+
+  response:
+    422: |
+      {"error":"invalid order`s number"}   
+
+- name: сохранение номера заказа - негативный кейс - нет токена
+  method: POST
+  path: /api/user/orders
+  headers:
+    Content-Type: text/plain
+  request: |
+    79927398713
+
+  response:
+    401: |
+      {"error":"invalid token!"}
+
+- name: сохранение номера заказа - негативный кейс - невалидный формат запроса
+  method: POST
+  path: /api/user/orders
+  cookies:
+    session_token: test_token123
+  headers:
+    Content-Type: application/json
+  request: |
+    {"order": "79927398713"}
+
+  response:
+    400: |
+      {"error":"invalid request Content-type"}
+
+- name: сохранение номера заказа - негативный кейс - не указан номер заказа
+  method: POST
+  path: /api/user/orders
+  cookies:
+    session_token: test_token123
+  headers:
+    Content-Type: text/plain
+  request: |
+    
+
+  response:
+    400: |
+      {"error": "empty order number"}

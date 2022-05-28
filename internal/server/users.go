@@ -66,11 +66,11 @@ func (h *AppHandler) UserLogin(c *gin.Context) {
 func (h *AppHandler) PostOrders(c *gin.Context) {
 	orderNumber, err := h.textPlainRequestHandler(c)
 	if err != nil {
-		c.String(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
 	}
 	if orderNumber == "" {
-		c.String(http.StatusBadRequest, "empty order number")
+		c.JSON(http.StatusBadRequest, map[string]string{"error": "empty order number"})
 		return
 	}
 	token, err := c.Cookie("session_token")
@@ -86,7 +86,7 @@ func (h *AppHandler) PostOrders(c *gin.Context) {
 			c.JSON(http.StatusUnprocessableEntity, map[string]string{"error": "invalid order`s number"})
 			return
 		case errors.Is(err, errs.ErrOrderAlreadyExists):
-			c.JSON(http.StatusOK, map[string]string{"error": "already uploaded!"})
+			c.JSON(http.StatusOK, map[string]string{"status": "already uploaded!"})
 			return
 		case errors.Is(err, errs.ErrOrderBelongsToAnotherUser):
 			c.JSON(http.StatusConflict, map[string]string{"error": "already uploaded by another user!"})
@@ -96,7 +96,7 @@ func (h *AppHandler) PostOrders(c *gin.Context) {
 			return
 		}
 	}
-	c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+	c.JSON(http.StatusAccepted, map[string]string{"status": "ok"})
 	return
 }
 

@@ -7,12 +7,10 @@ import (
 	"final_quest/internal/usecase/users"
 	"final_quest/pkg/authMW"
 	"final_quest/pkg/logging"
+	"github.com/lamoda/gonkey/runner"
 	"log"
 	"net/http/httptest"
 	"testing"
-	"time"
-
-	"github.com/lamoda/gonkey/runner"
 )
 
 var testDBURI = "user=postgres password=postgres dbname=gophermart_test sslmode=disable"
@@ -36,10 +34,7 @@ func TestFuncCases(t *testing.T) {
 	appUsersService := users.NewUsersUseCase(appRepository, logger)
 	appUsersHandler := server.InitAppHandler(appUsersService, logger)
 	srv := httptest.NewServer(appUsersHandler.Init())
-	authMW.Sessions["test_token123"] = authMW.Session{
-		UserID: 1,
-		Expiry: time.Now().Add(24 * time.Hour),
-	}
+	authMW.PrepareTestTokens()
 	defer srv.Close()
 	defer dbClient.Close()
 	defer appRepository.DropTables()

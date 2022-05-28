@@ -49,22 +49,33 @@ func TokenMW() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, err := c.Cookie("session_token")
 		if err != nil {
-			c.String(http.StatusUnauthorized, "invalid token!")
+			c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid token!"})
 			c.Abort()
 			return
 		}
 		tokenStatus, err := CheckToken(token)
 		if err != nil {
-			c.String(http.StatusUnauthorized, "token is expired!")
+			c.JSON(http.StatusUnauthorized, map[string]string{"error": "token is expired!"})
 			c.Abort()
 			return
 		}
 		if !tokenStatus {
 			delete(Sessions, token)
-			c.String(http.StatusUnauthorized, "user`s session not found!")
+			c.JSON(http.StatusUnauthorized, map[string]string{"error": "user`s session not found!"})
 			c.Abort()
 			return
 		}
 		c.Next()
+	}
+}
+
+func PrepareTestTokens() {
+	Sessions["test_token123"] = Session{
+		UserID: 1,
+		Expiry: time.Now().Add(24 * time.Hour),
+	}
+	Sessions["test_token1234"] = Session{
+		UserID: 2234,
+		Expiry: time.Now().Add(24 * time.Hour),
 	}
 }

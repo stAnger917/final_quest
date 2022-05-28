@@ -20,6 +20,10 @@ func (h *AppHandler) jsonRegistrationRequestHandler(c *gin.Context, data *models
 }
 
 func (h *AppHandler) textPlainRequestHandler(c *gin.Context) (string, error) {
+	reqContentType := c.Request.Header.Get("Content-Type")
+	if reqContentType != "text/plain" {
+		return "", errs.ErrIncorrectOrderBody
+	}
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
 		return "", err
