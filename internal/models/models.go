@@ -22,3 +22,9 @@ type SingleOrderData struct {
 	Number string
 	UserID int
 }
+
+type OrderInfo struct {
+	ID     int
+	UserID int
+	Number string
+}

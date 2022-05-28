@@ -9,29 +9,29 @@ import (
 )
 
 type Session struct {
-	userId int
-	expiry time.Time
+	UserID int
+	Expiry time.Time
 }
 
 var Sessions = map[string]Session{}
 
 func (s Session) IsExpired() bool {
-	return s.expiry.Before(time.Now())
+	return s.Expiry.Before(time.Now())
 }
 
 func CreateToken(userId int) (string, time.Time) {
 	sessionToken := uuid.NewString()
 	expiresAt := time.Now().Add(6 * time.Hour)
 	Sessions[sessionToken] = Session{
-		userId: userId,
-		expiry: expiresAt,
+		UserID: userId,
+		Expiry: expiresAt,
 	}
 	return sessionToken, expiresAt
 }
 
 func GetLoginFromToken(sessionToken string) int {
 	userSession, _ := Sessions[sessionToken]
-	return userSession.userId
+	return userSession.UserID
 }
 
 func CheckToken(sessionToken string) (bool, error) {

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"final_quest/internal/errs"
 	"final_quest/internal/models"
 	"final_quest/pkg/logging"
 	"fmt"
@@ -98,19 +99,36 @@ func (ar *AppRepo) GetUserByLogin(ctx context.Context, userLogin string) (models
 	return result, nil
 }
 
-func (ar *AppRepo) CheckIfOrderExists(ctx context.Context, userId int, orderNumber int) (bool, error) {
-	var id int
-	var number int
-	sqlString := fmt.Sprintf("SELECT user_id, orders_number FROM user_orders where user_id = '%v' AND orders_number = %v;", userId, orderNumber)
-	err := ar.db.QueryRowContext(ctx, sqlString).Scan(&id, &number)
-	switch {
-	case err == sql.ErrNoRows:
-		return false, nil
-	case err != nil:
-		return false, err
-	default:
-		return true, nil
+func (ar *AppRepo) CheckOrder(ctx context.Context, userId int, orderNumber string) error {
+	var data models.OrderInfo
+	sqlString := fmt.Sprintf("SELECT id, user_id, orders_number FROM user_orders where user_id = %v AND orders_number = '%s';", userId, orderNumber)
+	rows, err := ar.db.QueryContext(ctx, sqlString)
+	if err != nil {
+		return err
 	}
+	defer rows.Close()
+	for rows.Next() {
+		item := models.OrderInfo{}
+		err = rows.Scan(&item.ID, &item.UserID, &item.Number)
+		if err != nil {
+			return err
+		}
+		data = models.OrderInfo{
+			ID:     item.ID,
+			Number: item.Number,
+			UserID: item.UserID,
+		}
+	}
+	if data.Number == "" {
+		return nil
+	}
+	switch {
+	case data.Number == orderNumber && data.UserID == userId:
+		return errs.ErrOrderAlreadyExists
+	case data.Number == orderNumber && data.UserID != userId:
+		return errs.ErrOrderBelongsToAnotherUser
+	}
+	return nil
 }
 
 func (ar *AppRepo) CheckIfOrderBelongsToUser(ctx context.Context, userID int, orderNumber string) (bool, error) {
@@ -140,10 +158,10 @@ func (ar *AppRepo) CheckIfOrderBelongsToUser(ctx context.Context, userID int, or
 	return true, nil
 }
 
-func (ar *AppRepo) SaveOrder(ctx context.Context, userId, ordersNumber int) error {
+func (ar *AppRepo) SaveOrder(ctx context.Context, userId int, ordersNumber string) error {
 	defaultStatus := "NEW"
 	uploadedAt := carbon.Now().ToRfc3339String()
-	sqlString := fmt.Sprintf("insert into user_orders (user_id, orders_number, orders_status, uploaded_at) values ('%v', '%v', '%s', '%s')", userId, ordersNumber, defaultStatus, uploadedAt)
+	sqlString := fmt.Sprintf("insert into user_orders (user_id, orders_number, orders_status, uploaded_at) values ('%v', '%s', '%s', '%s')", userId, ordersNumber, defaultStatus, uploadedAt)
 	_, err := ar.db.ExecContext(ctx, sqlString)
 	return err
 }

@@ -2,16 +2,15 @@ package users
 
 import (
 	"context"
-	"errors"
 	"final_quest/internal/errs"
 	"final_quest/internal/models"
 	"final_quest/internal/repository"
 	"final_quest/pkg/hasher"
 	"final_quest/pkg/logging"
-	"fmt"
 	"github.com/golang-module/carbon/v2"
 	"github.com/theplant/luhn"
 	"strconv"
+	"strings"
 )
 
 type Users struct {
@@ -32,7 +31,7 @@ func (u *Users) CreateNewUser(ctx context.Context, login, password string) error
 		return err
 	}
 	if isUserExists {
-		return errors.New("user already exists")
+		return errs.ErrUserAlreadyExists
 	}
 	hashedPassword := hasher.HashPassword(password)
 	err = u.repository.CreateNewUser(ctx, login, hashedPassword)
@@ -48,7 +47,6 @@ func (u *Users) LoginUser(ctx context.Context, login, password string) error {
 		return errs.ErrUserNotFound
 	}
 	matchPasswordsStatus := hasher.CheckPasswordHash(password, usersData.Password)
-	fmt.Println("Login/password status match: ", matchPasswordsStatus)
 	if !matchPasswordsStatus {
 		return errs.ErrLoginMismatch
 	}
@@ -64,7 +62,8 @@ func (u *Users) GetUserID(ctx context.Context, login string) (int, error) {
 }
 
 func (u *Users) SaveOrderNumber(ctx context.Context, userId int, orderNumber string) error {
-	i, err := strconv.Atoi(orderNumber)
+	number := strings.Replace(orderNumber, "\n", "", 1)
+	i, err := strconv.Atoi(number)
 	if err != nil {
 		return err
 	}
@@ -74,22 +73,12 @@ func (u *Users) SaveOrderNumber(ctx context.Context, userId int, orderNumber str
 		return errs.ErrInvalidOrderNumber
 	}
 	// checking is order already exist
-	isOrderExists, err := u.repository.CheckIfOrderExists(ctx, userId, i)
+	err = u.repository.CheckOrder(ctx, userId, orderNumber)
 	if err != nil {
 		return err
-	}
-	if isOrderExists {
-		return errs.ErrOrderAlreadyExists
-	}
-	isAnotherUser, err := u.repository.CheckIfOrderBelongsToUser(ctx, userId, orderNumber)
-	if err != nil {
-		return err
-	}
-	if !isAnotherUser {
-		return errs.ErrOrderBelongsToAnotherUser
 	}
 	// saving order
-	err = u.repository.SaveOrder(ctx, userId, i)
+	err = u.repository.SaveOrder(ctx, userId, orderNumber)
 	return err
 }
 

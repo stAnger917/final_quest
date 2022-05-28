@@ -1,0 +1,14 @@
+- name: сохранение номера заказа - позитивный кейс
+
+  method: POST
+  path: /api/user/orders
+  cookies:
+    session_token: test_token123
+  headers:
+    Content-Type: text/plain
+  request: |
+    79927398713
+
+  response:
+    200: |
+      {"status": "ok"}

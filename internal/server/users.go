@@ -24,7 +24,11 @@ func (h *AppHandler) UserRegistration(c *gin.Context) {
 
 	err = h.userService.CreateNewUser(context.Context(c), requestData.Login, requestData.Password)
 	if err != nil {
-		c.JSON(http.StatusConflict, map[string]string{"message": errs.ErrUserAlreadyExists.Error()})
+		if errors.Is(err, errs.ErrUserAlreadyExists) {
+			c.JSON(http.StatusConflict, map[string]string{"message": errs.ErrUserAlreadyExists.Error()})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, map[string]string{"status": "created"})
@@ -77,24 +81,22 @@ func (h *AppHandler) PostOrders(c *gin.Context) {
 	userID := authMW.GetLoginFromToken(token)
 	err = h.userService.SaveOrderNumber(context.Context(c), userID, orderNumber)
 	if err != nil {
-		if errors.Is(err, errs.ErrInvalidOrderNumber) {
-			c.String(http.StatusUnprocessableEntity, "invalid order`s number")
+		switch {
+		case errors.Is(err, errs.ErrInvalidOrderNumber):
+			c.JSON(http.StatusUnprocessableEntity, map[string]string{"error": "invalid order`s number"})
+			return
+		case errors.Is(err, errs.ErrOrderAlreadyExists):
+			c.JSON(http.StatusOK, map[string]string{"error": "already uploaded!"})
+			return
+		case errors.Is(err, errs.ErrOrderBelongsToAnotherUser):
+			c.JSON(http.StatusConflict, map[string]string{"error": "already uploaded by another user!"})
+			return
+		default:
+			c.String(http.StatusInternalServerError, err.Error())
 			return
 		}
-
-		if errors.Is(err, errs.ErrOrderAlreadyExists) {
-			c.String(http.StatusOK, "already uploaded!")
-			return
-		}
-		if errors.Is(err, errs.ErrOrderBelongsToAnotherUser) {
-			c.String(http.StatusConflict, "already uploaded by another user!")
-			return
-		}
-
-		c.String(http.StatusInternalServerError, err.Error())
-		return
 	}
-	c.String(http.StatusOK, "ok")
+	c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 	return
 }
 
