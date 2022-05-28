@@ -112,6 +112,10 @@ func (h *AppHandler) GetOrders(c *gin.Context) {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
+	if len(res) == 0 {
+		c.String(http.StatusNoContent, "")
+		return
+	}
 	c.JSON(http.StatusOK, res)
 	return
 }
