@@ -24,16 +24,20 @@ func TestFuncCases(t *testing.T) {
 	logger := logging.InitAppLogger(cfg.LoggingLevel)
 	dbClient, err := repository.NewDBClient(testDBURI)
 	if err != nil {
-		logger.EasyLogFatal("main", "failed to init db client on: ", cfg.DatabaseURI, err)
+		logger.EasyLogFatal("tests", "failed to init db client on: ", cfg.DatabaseURI, err)
 	}
 	appRepository := repository.InitAppDB(dbClient, logger)
 	err = appRepository.InitTables()
 	if err != nil {
-		logger.EasyLogFatal("main", "failed to init db tables", "", err)
+		logger.EasyLogFatal("tests", "failed to init db tables", "", err)
 	}
 	appUsersService := users.NewUsersUseCase(appRepository, logger)
 	appUsersHandler := server.InitAppHandler(appUsersService, logger)
 	srv := httptest.NewServer(appUsersHandler.Init())
+	err = appRepository.PrepareTestData()
+	if err != nil {
+		logger.EasyLogFatal("tests", "failed to prepare db test data", "", err)
+	}
 	authMW.PrepareTestTokens()
 	defer srv.Close()
 	defer dbClient.Close()

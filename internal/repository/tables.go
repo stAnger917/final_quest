@@ -1,5 +1,7 @@
 package repository
 
+import "fmt"
+
 func (ar *AppRepo) CreateTableUsers() error {
 	_, err := ar.db.Exec("CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, login VARCHAR(350) UNIQUE NOT NULL, password VARCHAR(350) NOT NULL)")
 	if err != nil {
@@ -10,7 +12,7 @@ func (ar *AppRepo) CreateTableUsers() error {
 }
 
 func (ar *AppRepo) CreateTableUserOrders() error {
-	_, err := ar.db.Exec("CREATE TABLE IF NOT EXISTS user_orders(id SERIAL PRIMARY KEY, user_id SERIAL NOT NULL, orders_number VARCHAR(350) UNIQUE NOT NULL,  orders_status VARCHAR (350) NOT NULL, uploaded_at VARCHAR(350) UNIQUE NOT NULL, accrual INTEGER, CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id))")
+	_, err := ar.db.Exec("CREATE TABLE IF NOT EXISTS user_orders(id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL, orders_number VARCHAR(350) UNIQUE NOT NULL,  orders_status VARCHAR (350) NOT NULL, uploaded_at VARCHAR(350) UNIQUE NOT NULL, accrual INTEGER DEFAULT 0, CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id))")
 	if err != nil {
 		ar.logger.EasyLogFatal("repository", "failed to create user_orders table", "", err)
 		return err
@@ -68,6 +70,26 @@ func (ar *AppRepo) DropTableWithdrawHistory() error {
 	if err != nil {
 		ar.logger.EasyLogFatal("repository", "failed to create withdraw history_table", "", err)
 		return err
+	}
+	return nil
+}
+
+func (ar *AppRepo) PrepareTestData() error {
+	sqlString := fmt.Sprintf("insert into users (login, password) values ('%s', '%s')", "testUserLogin", "testUserPassword")
+	_, err := ar.db.Exec(sqlString)
+	if err != nil {
+		return err
+	}
+	userID := 1
+	defaultStatus := "NEW"
+	ordersNumbers := [3]string{"555", "666", "777"}
+	time := [3]string{"2022-05-25T16:43:51+03:00", "2022-05-26T16:43:51+03:00", "2022-05-27T16:43:51+03:00"}
+	for i, v := range ordersNumbers {
+		sqlString := fmt.Sprintf("insert into user_orders (user_id, orders_number, orders_status, uploaded_at) values ('%v', '%s', '%s', '%s')", userID, v, defaultStatus, time[i])
+		_, err := ar.db.Exec(sqlString)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

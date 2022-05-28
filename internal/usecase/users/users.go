@@ -7,6 +7,7 @@ import (
 	"final_quest/internal/repository"
 	"final_quest/pkg/hasher"
 	"final_quest/pkg/logging"
+	"fmt"
 	"github.com/golang-module/carbon/v2"
 	"github.com/theplant/luhn"
 	"strconv"
@@ -88,6 +89,7 @@ func (u *Users) GetUserOrders(ctx context.Context, userID int) ([]models.OrderDa
 		return []models.OrderData{}, err
 	}
 	sort(data)
+	fmt.Println(data)
 	return data, nil
 }
 

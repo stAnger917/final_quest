@@ -27,7 +27,7 @@ func (h *AppHandler) Init() *gin.Engine {
 		userRoutes.POST("/register", h.UserRegistration)
 		userRoutes.POST("/login", h.UserLogin)
 		userRoutes.POST("/orders", authMW.TokenMW(), h.PostOrders)
-		userRoutes.GET("/orders")
+		userRoutes.GET("/orders", authMW.TokenMW(), h.GetOrders)
 		userRoutes.GET("/balance")
 		userRoutes.POST("/balance/withdraw")
 		userRoutes.GET("/balance/withdrawals")

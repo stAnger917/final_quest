@@ -70,8 +70,12 @@ func TokenMW() gin.HandlerFunc {
 }
 
 func PrepareTestTokens() {
-	Sessions["test_token123"] = Session{
+	Sessions["test_token1"] = Session{
 		UserID: 1,
+		Expiry: time.Now().Add(24 * time.Hour),
+	}
+	Sessions["test_token123"] = Session{
+		UserID: 2,
 		Expiry: time.Now().Add(24 * time.Hour),
 	}
 	Sessions["test_token1234"] = Session{

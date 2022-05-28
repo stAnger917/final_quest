@@ -169,7 +169,7 @@ func (ar *AppRepo) SaveOrder(ctx context.Context, userId int, ordersNumber strin
 func (ar *AppRepo) GetOrdersByUserID(ctx context.Context, userID int) ([]models.OrderData, error) {
 	var data models.OrderData
 	var result []models.OrderData
-	sqlString := fmt.Sprintf("SELECT orders_number, orders_status, uploaded_at, accrual FROM users WHERE user_id = '%v';", userID)
+	sqlString := fmt.Sprintf("SELECT orders_number, orders_status, uploaded_at, accrual FROM user_orders WHERE user_id = '%v';", userID)
 	rows, err := ar.db.QueryContext(ctx, sqlString)
 	if err != nil {
 		return []models.OrderData{}, err
@@ -177,7 +177,7 @@ func (ar *AppRepo) GetOrdersByUserID(ctx context.Context, userID int) ([]models.
 	defer rows.Close()
 	for rows.Next() {
 		item := models.OrderData{}
-		err = rows.Scan(&item.Number, &item.Status, &item.Accrual, &item.UploadedAt)
+		err = rows.Scan(&item.Number, &item.Status, &item.UploadedAt, &item.Accrual)
 		if err != nil {
 			return []models.OrderData{}, err
 		}
