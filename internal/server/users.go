@@ -24,7 +24,7 @@ func (h *AppHandler) UserRegistration(c *gin.Context) {
 
 	err = h.userService.CreateNewUser(context.Context(c), requestData.Login, requestData.Password)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+		c.JSON(http.StatusConflict, map[string]string{"message": errs.ErrUserAlreadyExists.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, map[string]string{"status": "created"})
@@ -36,19 +36,15 @@ func (h *AppHandler) UserLogin(c *gin.Context) {
 	err := h.jsonRegistrationRequestHandler(c, &requestData)
 	if err != nil {
 		if errors.Is(err, errs.ErrEmptyRegistrationData) {
-			c.String(http.StatusBadRequest, "empty email / password in request body denied")
+			c.JSON(http.StatusBadRequest, map[string]string{"message": "empty email / password in request body denied"})
 			return
 		}
-		c.String(http.StatusBadRequest, "error while parsing request body")
+		c.JSON(http.StatusBadRequest, map[string]string{"message": "error while parsing request body"})
 		return
 	}
 	err = h.userService.LoginUser(context.Context(c), requestData.Login, requestData.Password)
 	if err != nil {
-		if errors.Is(err, errs.ErrLoginMismatch) {
-			c.String(http.StatusUnauthorized, err.Error())
-			return
-		}
-		c.String(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusUnauthorized, map[string]string{"message": errs.ErrLoginMismatch.Error()})
 		return
 	}
 	userID, err := h.userService.GetUserID(context.Context(c), requestData.Login)
@@ -59,7 +55,7 @@ func (h *AppHandler) UserLogin(c *gin.Context) {
 
 	token, _ := authMW.CreateToken(userID)
 	c.SetCookie("session_token", token, 60*60*24, "", "localhost", false, false)
-	c.String(http.StatusOK, "welcome")
+	c.JSON(http.StatusOK, map[string]string{"message": "welcome"})
 	return
 }
 

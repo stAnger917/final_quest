@@ -8,6 +8,7 @@ import (
 	"final_quest/internal/repository"
 	"final_quest/pkg/hasher"
 	"final_quest/pkg/logging"
+	"fmt"
 	"github.com/golang-module/carbon/v2"
 	"github.com/theplant/luhn"
 	"strconv"
@@ -47,6 +48,7 @@ func (u *Users) LoginUser(ctx context.Context, login, password string) error {
 		return errs.ErrUserNotFound
 	}
 	matchPasswordsStatus := hasher.CheckPasswordHash(password, usersData.Password)
+	fmt.Println("Login/password status match: ", matchPasswordsStatus)
 	if !matchPasswordsStatus {
 		return errs.ErrLoginMismatch
 	}

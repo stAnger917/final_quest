@@ -51,5 +51,5 @@
     }
 
   response:
-    400: |
+    409: |
       {"message":"user already exists"}
