@@ -191,3 +191,25 @@ func (ar *AppRepo) GetOrdersByUserID(ctx context.Context, userID int) ([]models.
 	}
 	return result, nil
 }
+
+func (ar *AppRepo) GetUserBalanceByID(ctx context.Context, userID int) (models.UserBalanceInfo, error) {
+	var data models.UserBalanceInfo
+	sqlString := fmt.Sprintf("SELECT user_id, current_balance, withdraw FROM user_balance WHERE user_id = %v;", userID)
+	rows, err := ar.db.QueryContext(ctx, sqlString)
+	if err != nil {
+		return models.UserBalanceInfo{}, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		item := models.UserBalance{}
+		err = rows.Scan(&item.UserID, &item.Current, &item.Withdraw)
+		if err != nil {
+			return models.UserBalanceInfo{}, err
+		}
+		data = models.UserBalanceInfo{
+			Current:  item.Current,
+			Withdraw: item.Withdraw,
+		}
+	}
+	return data, nil
+}

@@ -21,7 +21,7 @@ func (ar *AppRepo) CreateTableUserOrders() error {
 }
 
 func (ar *AppRepo) CreateTableUserBalance() error {
-	_, err := ar.db.Exec("CREATE TABLE IF NOT EXISTS user_balance(id SERIAL PRIMARY KEY, user_id SERIAL NOT NULL, current_balance INTEGER, withdraw INTEGER, CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id))")
+	_, err := ar.db.Exec("CREATE TABLE IF NOT EXISTS user_balance(id SERIAL PRIMARY KEY, user_id INTEGER UNIQUE NOT NULL, current_balance REAL DEFAULT 0, withdraw REAL DEFAULT 0, CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id))")
 	if err != nil {
 		ar.logger.EasyLogFatal("repository", "failed to create user_balance table", "", err)
 		return err
@@ -30,9 +30,9 @@ func (ar *AppRepo) CreateTableUserBalance() error {
 }
 
 func (ar *AppRepo) CreateTableWithdrawHistory() error {
-	_, err := ar.db.Exec("CREATE TABLE IF NOT EXISTS withdraw_history(id SERIAL PRIMARY KEY, user_id SERIAL NOT NULL, orders_number VARCHAR(350) UNIQUE NOT NULL, sum INTEGER, procesed_at VARCHAR(350) UNIQUE NOT NULL, CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id), CONSTRAINT fk_orders_number FOREIGN KEY (orders_number) REFERENCES user_orders (orders_number))")
+	_, err := ar.db.Exec("CREATE TABLE IF NOT EXISTS withdraw_history(id SERIAL PRIMARY KEY, user_id INTEGER UNIQUE NOT NULL, orders_number VARCHAR(350) UNIQUE NOT NULL, sum INTEGER DEFAULT 0, procesed_at VARCHAR(350) NOT NULL, CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id), CONSTRAINT fk_orders_number FOREIGN KEY (orders_number) REFERENCES user_orders (orders_number))")
 	if err != nil {
-		ar.logger.EasyLogFatal("repository", "failed to create withdraw history_table", "", err)
+		ar.logger.EasyLogFatal("repository", "failed to create withdraw_history table", "", err)
 		return err
 	}
 	return nil
@@ -75,12 +75,17 @@ func (ar *AppRepo) DropTableWithdrawHistory() error {
 }
 
 func (ar *AppRepo) PrepareTestData() error {
+	userID := 1
 	sqlString := fmt.Sprintf("insert into users (login, password) values ('%s', '%s')", "testUserLogin", "testUserPassword")
 	_, err := ar.db.Exec(sqlString)
 	if err != nil {
 		return err
 	}
-	userID := 1
+	sqlString = fmt.Sprintf("insert into user_balance (user_id, current_balance, withdraw) values (%v, %v, %v)", userID, 425, 25.5)
+	_, err = ar.db.Exec(sqlString)
+	if err != nil {
+		return err
+	}
 	defaultStatus := "NEW"
 	ordersNumbers := [3]string{"555", "666", "777"}
 	time := [3]string{"2022-05-26T16:43:51+03:00", "2022-05-25T16:43:51+03:00", "2022-05-27T16:43:51+03:00"}

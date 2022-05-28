@@ -1,0 +1,17 @@
+- name: получение баланса пользователя - позитивный кейс
+  method: GET
+  path: /api/user/balance
+  cookies:
+    session_token: test_token1
+
+  response:
+    200: |
+      {"current":425,"withdraw":25.5}
+
+- name: получение баланса пользователя - негативный кейс - запрос без токена
+  method: GET
+  path: /api/user/balance
+
+  response:
+    401: |
+      {"error":"invalid token!"}

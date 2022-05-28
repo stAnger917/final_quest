@@ -119,3 +119,19 @@ func (h *AppHandler) GetOrders(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 	return
 }
+
+func (h *AppHandler) GetBalance(c *gin.Context) {
+	token, err := c.Cookie("session_token")
+	if err != nil {
+		c.String(http.StatusUnauthorized, err.Error())
+		return
+	}
+	userID := authMW.GetLoginFromToken(token)
+	res, err := h.userService.GetUserBalance(context.Context(c), userID)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, res)
+	return
+}

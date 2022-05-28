@@ -7,7 +7,6 @@ import (
 	"final_quest/internal/repository"
 	"final_quest/pkg/hasher"
 	"final_quest/pkg/logging"
-	"fmt"
 	"github.com/golang-module/carbon/v2"
 	"github.com/theplant/luhn"
 	"strconv"
@@ -88,22 +87,29 @@ func (u *Users) GetUserOrders(ctx context.Context, userID int) ([]models.OrderDa
 	if err != nil {
 		return []models.OrderData{}, err
 	}
-	sort(data)
-	fmt.Println(data)
+	sortOrdersByDate(data)
 	return data, nil
 }
 
-func swap(ar []models.OrderData, i, j int) {
+func (u *Users) GetUserBalance(ctx context.Context, userID int) (models.UserBalanceInfo, error) {
+	data, err := u.repository.GetUserBalanceByID(ctx, userID)
+	if err != nil {
+		return models.UserBalanceInfo{}, err
+	}
+	return data, nil
+}
+
+func swapOrders(ar []models.OrderData, i, j int) {
 	tmp := ar[i]
 	ar[i] = ar[j]
 	ar[j] = tmp
 }
 
-func sort(data []models.OrderData) {
+func sortOrdersByDate(data []models.OrderData) {
 	for i := 0; i < len(data); i++ {
 		for j := i; j < len(data); j++ {
 			if carbon.Parse(data[i].UploadedAt).Compare(">", carbon.Parse(data[j].UploadedAt)) {
-				swap(data, i, j)
+				swapOrders(data, i, j)
 			}
 		}
 	}

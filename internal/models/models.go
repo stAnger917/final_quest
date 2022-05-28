@@ -28,3 +28,14 @@ type OrderInfo struct {
 	UserID int
 	Number string
 }
+
+type UserBalanceInfo struct {
+	Current  float32 `json:"current"`
+	Withdraw float32 `json:"withdraw"`
+}
+
+type UserBalance struct {
+	UserID   int     `json:"user_id"`
+	Current  float32 `json:"current"`
+	Withdraw float32 `json:"withdraw"`
+}
