@@ -30,7 +30,7 @@ func (ar *AppRepo) CreateTableUserBalance() error {
 }
 
 func (ar *AppRepo) CreateTableWithdrawHistory() error {
-	_, err := ar.db.Exec("CREATE TABLE IF NOT EXISTS withdraw_history(id SERIAL PRIMARY KEY, user_id INTEGER UNIQUE NOT NULL, orders_number VARCHAR(350) UNIQUE NOT NULL, sum INTEGER DEFAULT 0, procesed_at VARCHAR(350) NOT NULL, CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id), CONSTRAINT fk_orders_number FOREIGN KEY (orders_number) REFERENCES user_orders (orders_number))")
+	_, err := ar.db.Exec("CREATE TABLE IF NOT EXISTS withdraw_history(id SERIAL PRIMARY KEY, user_id INTEGER UNIQUE NOT NULL, orders_number VARCHAR(350) UNIQUE NOT NULL, sum REAL DEFAULT 0, processed_at VARCHAR(350) NOT NULL, CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id), CONSTRAINT fk_orders_number FOREIGN KEY (orders_number) REFERENCES user_orders (orders_number))")
 	if err != nil {
 		ar.logger.EasyLogFatal("repository", "failed to create withdraw_history table", "", err)
 		return err
@@ -86,7 +86,7 @@ func (ar *AppRepo) PrepareTestData() error {
 	if err != nil {
 		return err
 	}
-	defaultStatus := "NEW"
+	defaultStatus := "REGISTERED"
 	ordersNumbers := [3]string{"555", "666", "777"}
 	time := [3]string{"2022-05-26T16:43:51+03:00", "2022-05-25T16:43:51+03:00", "2022-05-27T16:43:51+03:00"}
 	for i, v := range ordersNumbers {

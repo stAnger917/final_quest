@@ -6,7 +6,7 @@
 
   response:
     200: |
-      [{"number":"666","status":"NEW","uploaded_at":"2022-05-25T16:43:51+03:00"},{"number":"555","status":"NEW","uploaded_at":"2022-05-26T16:43:51+03:00"},{"number":"777","status":"NEW","uploaded_at":"2022-05-27T16:43:51+03:00"}]
+      [{"number":"666","status":"REGISTERED","uploaded_at":"2022-05-25T16:43:51+03:00"},{"number":"555","status":"REGISTERED","uploaded_at":"2022-05-26T16:43:51+03:00"},{"number":"777","status":"REGISTERED","uploaded_at":"2022-05-27T16:43:51+03:00"}]
 
 - name: получение списка заказов - позитивный кейс пустой список
   method: GET

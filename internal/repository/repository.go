@@ -159,7 +159,7 @@ func (ar *AppRepo) CheckIfOrderBelongsToUser(ctx context.Context, userID int, or
 }
 
 func (ar *AppRepo) SaveOrder(ctx context.Context, userId int, ordersNumber string) error {
-	defaultStatus := "NEW"
+	defaultStatus := "REGISTERED"
 	uploadedAt := carbon.Now().ToRfc3339String()
 	sqlString := fmt.Sprintf("insert into user_orders (user_id, orders_number, orders_status, uploaded_at) values ('%v', '%s', '%s', '%s')", userId, ordersNumber, defaultStatus, uploadedAt)
 	_, err := ar.db.ExecContext(ctx, sqlString)
@@ -212,4 +212,72 @@ func (ar *AppRepo) GetUserBalanceByID(ctx context.Context, userID int) (models.U
 		}
 	}
 	return data, nil
+}
+
+func (ar *AppRepo) MakeWithdraw(ctx context.Context, userID int, withdrawSum float32, orderNum string) error {
+	tx, err := ar.db.Begin()
+	if err != nil {
+		return err
+	}
+	// checking user`s balance
+	balanceInfo, err := ar.GetUserBalanceByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	// if ok - make withdraw
+	if balanceInfo.Current < withdrawSum {
+		return errs.ErrNotEnoughFounds
+	}
+	newBalance := balanceInfo.Current - withdrawSum
+	newWithdrawBalance := balanceInfo.Withdraw + withdrawSum
+	// setting new values in user_balance table
+	sqlString := fmt.Sprintf("UPDATE user_balance "+
+		"SET current_balance = %v, "+
+		"withdraw = %v WHERE user_id = %v;", newBalance, newWithdrawBalance, userID)
+	_, err = ar.db.ExecContext(ctx, sqlString)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	processedAt := carbon.Now().ToRfc3339String()
+	sqlStringForWithdrawHistory := fmt.Sprintf("INSERT INTO withdraw_history "+
+		"(user_id, orders_number, sum, processed_at)"+
+		"VALUES (%v, '%s', %v, '%s')", userID, orderNum, withdrawSum, processedAt)
+	_, err = ar.db.ExecContext(ctx, sqlStringForWithdrawHistory)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	err = tx.Commit()
+	return err
+}
+
+func (ar *AppRepo) CheckOrderForWithdraw(ctx context.Context, userID int, orderNumber string) error {
+	var data models.OrderInfo
+	sqlString := fmt.Sprintf("SELECT id, user_id, orders_number FROM user_orders where orders_number = '%s';", orderNumber)
+	rows, err := ar.db.QueryContext(ctx, sqlString)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		item := models.OrderInfo{}
+		err = rows.Scan(&item.ID, &item.UserID, &item.Number)
+		if err != nil {
+			return err
+		}
+		data = models.OrderInfo{
+			ID:     item.ID,
+			Number: item.Number,
+			UserID: item.UserID,
+		}
+	}
+	if data.UserID == 0 {
+		return errs.ErrOrderNotFound
+	}
+
+	if data.Number == orderNumber && data.UserID != userID {
+		return errs.ErrOrderBelongsToAnotherUser
+	}
+	return nil
 }

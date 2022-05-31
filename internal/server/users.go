@@ -135,3 +135,41 @@ func (h *AppHandler) GetBalance(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 	return
 }
+
+func (h *AppHandler) PostWithdraw(c *gin.Context) {
+	var withdrawData models.WithdrawData
+	err := h.jsonWithdrawRequestHandler(c, &withdrawData)
+	if err != nil {
+		if errors.Is(err, errs.ErrIncorrectWithdrawReqBody) {
+			c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusBadRequest, map[string]string{"message": "error while parsing request body"})
+		return
+	}
+	token, err := c.Cookie("session_token")
+	if err != nil {
+		c.String(http.StatusUnauthorized, err.Error())
+		return
+	}
+	userID := authMW.GetLoginFromToken(token)
+	err = h.userService.MakeWithdraw(context.Context(c), userID, withdrawData.Order, withdrawData.Sum)
+	if err != nil {
+		if errors.Is(err, errs.ErrNotEnoughFounds) {
+			c.JSON(http.StatusPaymentRequired, map[string]string{"error": err.Error()})
+			return
+		}
+		if errors.Is(err, errs.ErrOrderBelongsToAnotherUser) {
+			c.JSON(http.StatusUnprocessableEntity, map[string]string{"error": err.Error()})
+			return
+		}
+		if errors.Is(err, errs.ErrOrderNotFound) {
+			c.JSON(http.StatusUnprocessableEntity, map[string]string{"error": err.Error()})
+			return
+		}
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+	return
+}

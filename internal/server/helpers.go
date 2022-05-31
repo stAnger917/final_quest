@@ -31,3 +31,15 @@ func (h *AppHandler) textPlainRequestHandler(c *gin.Context) (string, error) {
 	result := string(body)
 	return result, nil
 }
+
+func (h *AppHandler) jsonWithdrawRequestHandler(c *gin.Context, data *models.WithdrawData) error {
+	if err := c.ShouldBindJSON(&data); err != nil {
+		h.logger.EasyLogError("handlers", "error while parsing request body", "", err)
+		return err
+	}
+	if data.Order == "" || data.Sum == 0 {
+		h.logger.EasyLogError("handlers", "error while parsing request body", "", errs.ErrEmptyRegistrationData)
+		return errs.ErrIncorrectWithdrawReqBody
+	}
+	return nil
+}

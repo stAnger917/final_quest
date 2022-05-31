@@ -99,6 +99,16 @@ func (u *Users) GetUserBalance(ctx context.Context, userID int) (models.UserBala
 	return data, nil
 }
 
+func (u *Users) MakeWithdraw(ctx context.Context, userID int, orderNumber string, sum float32) error {
+	// checking order`s number - it must belong to current user
+	err := u.repository.CheckOrderForWithdraw(ctx, userID, orderNumber)
+	if err != nil {
+		return err
+	}
+	err = u.repository.MakeWithdraw(ctx, userID, sum, orderNumber)
+	return err
+}
+
 func swapOrders(ar []models.OrderData, i, j int) {
 	tmp := ar[i]
 	ar[i] = ar[j]
