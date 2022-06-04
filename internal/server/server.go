@@ -15,8 +15,8 @@ func InitNewServer(address string, handler http.Handler) *Server {
 		HTTPServer: &http.Server{
 			Addr:         address,
 			Handler:      handler,
-			ReadTimeout:  15 * time.Second,
-			WriteTimeout: 15 * time.Second,
+			ReadTimeout:  25 * time.Second,
+			WriteTimeout: 25 * time.Second,
 		},
 	}
 }
