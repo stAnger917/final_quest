@@ -83,15 +83,20 @@ func (ar *AppRepo) GetUserByLogin(ctx context.Context, userLogin string) (models
 	if err != nil {
 		return models.UserData{}, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			ar.logger.EasyLogCloseRowsErr(err)
+		}
+	}(rows)
 	for rows.Next() {
 		item := models.UserData{}
-		err = rows.Scan(&item.Id, &item.Login, &item.Password)
+		err = rows.Scan(&item.ID, &item.Login, &item.Password)
 		if err != nil {
 			return models.UserData{}, err
 		}
 		result = models.UserData{
-			Id:       item.Id,
+			ID:       item.ID,
 			Login:    item.Login,
 			Password: item.Password,
 		}
@@ -101,20 +106,24 @@ func (ar *AppRepo) GetUserByLogin(ctx context.Context, userLogin string) (models
 
 func (ar *AppRepo) CheckOrder(ctx context.Context, userID int, orderNumber string) error {
 	var data models.OrderInfo
-	sqlString := fmt.Sprintf("SELECT id, user_id, orders_number FROM user_orders where orders_number = '%s';", orderNumber)
+	sqlString := fmt.Sprintf("SELECT user_id, orders_number FROM user_orders where orders_number = '%s';", orderNumber)
 	rows, err := ar.db.QueryContext(ctx, sqlString)
 	if err != nil {
 		return err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			ar.logger.EasyLogCloseRowsErr(err)
+		}
+	}(rows)
 	for rows.Next() {
 		item := models.OrderInfo{}
-		err = rows.Scan(&item.ID, &item.UserID, &item.Number)
+		err = rows.Scan(&item.UserID, &item.Number)
 		if err != nil {
 			return err
 		}
 		data = models.OrderInfo{
-			ID:     item.ID,
 			Number: item.Number,
 			UserID: item.UserID,
 		}
@@ -138,7 +147,12 @@ func (ar *AppRepo) CheckIfOrderBelongsToUser(ctx context.Context, userID int, or
 	if err != nil {
 		return false, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			ar.logger.EasyLogCloseRowsErr(err)
+		}
+	}(rows)
 	for rows.Next() {
 		item := models.SingleOrderData{}
 		err = rows.Scan(&item.UserID, &item.Number)
@@ -158,10 +172,10 @@ func (ar *AppRepo) CheckIfOrderBelongsToUser(ctx context.Context, userID int, or
 	return true, nil
 }
 
-func (ar *AppRepo) SaveOrder(ctx context.Context, userId int, ordersNumber string) error {
+func (ar *AppRepo) SaveOrder(ctx context.Context, userID int, ordersNumber string) error {
 	defaultStatus := "REGISTERED"
 	uploadedAt := carbon.Now().ToRfc3339String()
-	sqlString := fmt.Sprintf("insert into user_orders (user_id, orders_number, orders_status, uploaded_at) values ('%v', '%s', '%s', '%s')", userId, ordersNumber, defaultStatus, uploadedAt)
+	sqlString := fmt.Sprintf("insert into user_orders (user_id, orders_number, orders_status, uploaded_at) values ('%v', '%s', '%s', '%s')", userID, ordersNumber, defaultStatus, uploadedAt)
 	_, err := ar.db.ExecContext(ctx, sqlString)
 	return err
 }
@@ -174,7 +188,12 @@ func (ar *AppRepo) GetOrdersByUserID(ctx context.Context, userID int) ([]models.
 	if err != nil {
 		return []models.OrderData{}, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			ar.logger.EasyLogCloseRowsErr(err)
+		}
+	}(rows)
 	for rows.Next() {
 		item := models.OrderData{}
 		err = rows.Scan(&item.Number, &item.Status, &item.UploadedAt, &item.Accrual)
@@ -199,7 +218,12 @@ func (ar *AppRepo) GetUserBalanceByID(ctx context.Context, userID int) (models.U
 	if err != nil {
 		return models.UserBalanceInfo{}, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			ar.logger.EasyLogCloseRowsErr(err)
+		}
+	}(rows)
 	for rows.Next() {
 		item := models.UserBalance{}
 		err = rows.Scan(&item.UserID, &item.Current, &item.Withdraw)
@@ -254,20 +278,24 @@ func (ar *AppRepo) MakeWithdraw(ctx context.Context, userID int, withdrawSum flo
 
 func (ar *AppRepo) CheckOrderForWithdraw(ctx context.Context, userID int, orderNumber string) error {
 	var data models.OrderInfo
-	sqlString := fmt.Sprintf("SELECT id, user_id, orders_number FROM user_orders where orders_number = '%s';", orderNumber)
+	sqlString := fmt.Sprintf("SELECT user_id, orders_number FROM user_orders where orders_number = '%s';", orderNumber)
 	rows, err := ar.db.QueryContext(ctx, sqlString)
 	if err != nil {
 		return err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			ar.logger.EasyLogCloseRowsErr(err)
+		}
+	}(rows)
 	for rows.Next() {
 		item := models.OrderInfo{}
-		err = rows.Scan(&item.ID, &item.UserID, &item.Number)
+		err = rows.Scan(&item.UserID, &item.Number)
 		if err != nil {
 			return err
 		}
 		data = models.OrderInfo{
-			ID:     item.ID,
 			Number: item.Number,
 			UserID: item.UserID,
 		}
@@ -320,7 +348,12 @@ func (ar *AppRepo) GetUserIDByOrderNum(ctx context.Context, orderNum string) (mo
 	if err != nil {
 		return models.OrderOwner{}, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			ar.logger.EasyLogCloseRowsErr(err)
+		}
+	}(rows)
 	for rows.Next() {
 		item := models.OrderOwner{}
 		err = rows.Scan(&item.UserID)
@@ -339,7 +372,12 @@ func (ar *AppRepo) GetAllOpenedOrders(ctx context.Context) ([]string, error) {
 	if err != nil {
 		return []string{}, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			ar.logger.EasyLogCloseRowsErr(err)
+		}
+	}(rows)
 	for rows.Next() {
 		item := models.OrderNumber{}
 		err = rows.Scan(&item.Number)

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"final_quest/internal/errs"
 	"final_quest/internal/models"
-	"final_quest/pkg/authMW"
+	"final_quest/pkg/authmw"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -32,7 +32,6 @@ func (h *AppHandler) UserRegistration(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, map[string]string{"status": "created"})
-	return
 }
 
 func (h *AppHandler) UserLogin(c *gin.Context) {
@@ -57,10 +56,9 @@ func (h *AppHandler) UserLogin(c *gin.Context) {
 		return
 	}
 
-	token, _ := authMW.CreateToken(userID)
+	token, _ := authmw.CreateToken(userID)
 	c.SetCookie("session_token", token, 60*60*24, "", "localhost", false, false)
 	c.JSON(http.StatusOK, map[string]string{"message": "welcome"})
-	return
 }
 
 func (h *AppHandler) PostOrders(c *gin.Context) {
@@ -78,7 +76,7 @@ func (h *AppHandler) PostOrders(c *gin.Context) {
 		c.String(http.StatusUnauthorized, err.Error())
 		return
 	}
-	userID := authMW.GetLoginFromToken(token)
+	userID := authmw.GetLoginFromToken(token)
 	err = h.userService.SaveOrderNumber(context.Context(c), userID, orderNumber)
 	if err != nil {
 		switch {
@@ -97,7 +95,6 @@ func (h *AppHandler) PostOrders(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusAccepted, map[string]string{"status": "ok"})
-	return
 }
 
 func (h *AppHandler) GetOrders(c *gin.Context) {
@@ -106,7 +103,7 @@ func (h *AppHandler) GetOrders(c *gin.Context) {
 		c.String(http.StatusUnauthorized, err.Error())
 		return
 	}
-	userID := authMW.GetLoginFromToken(token)
+	userID := authmw.GetLoginFromToken(token)
 	res, err := h.userService.GetUserOrders(context.Context(c), userID)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
@@ -117,7 +114,6 @@ func (h *AppHandler) GetOrders(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, res)
-	return
 }
 
 func (h *AppHandler) GetBalance(c *gin.Context) {
@@ -126,14 +122,13 @@ func (h *AppHandler) GetBalance(c *gin.Context) {
 		c.String(http.StatusUnauthorized, err.Error())
 		return
 	}
-	userID := authMW.GetLoginFromToken(token)
+	userID := authmw.GetLoginFromToken(token)
 	res, err := h.userService.GetUserBalance(context.Context(c), userID)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 	c.JSON(http.StatusOK, res)
-	return
 }
 
 func (h *AppHandler) PostWithdraw(c *gin.Context) {
@@ -152,7 +147,7 @@ func (h *AppHandler) PostWithdraw(c *gin.Context) {
 		c.String(http.StatusUnauthorized, err.Error())
 		return
 	}
-	userID := authMW.GetLoginFromToken(token)
+	userID := authmw.GetLoginFromToken(token)
 	err = h.userService.MakeWithdraw(context.Context(c), userID, withdrawData.Order, withdrawData.Sum)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotEnoughFounds) {
@@ -171,5 +166,4 @@ func (h *AppHandler) PostWithdraw(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, map[string]string{"status": "ok"})
-	return
 }

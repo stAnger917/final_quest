@@ -2,7 +2,7 @@ package server
 
 import (
 	"final_quest/internal/usecase/users"
-	"final_quest/pkg/authMW"
+	"final_quest/pkg/authmw"
 	"final_quest/pkg/logging"
 	"github.com/gin-gonic/gin"
 )
@@ -26,10 +26,10 @@ func (h *AppHandler) Init() *gin.Engine {
 	{
 		userRoutes.POST("/register", h.UserRegistration)
 		userRoutes.POST("/login", h.UserLogin)
-		userRoutes.POST("/orders", authMW.TokenMW(), h.PostOrders)
-		userRoutes.GET("/orders", authMW.TokenMW(), h.GetOrders)
-		userRoutes.GET("/balance", authMW.TokenMW(), h.GetBalance)
-		userRoutes.POST("/balance/withdraw", authMW.TokenMW(), h.PostWithdraw)
+		userRoutes.POST("/orders", authmw.TokenMW(), h.PostOrders)
+		userRoutes.GET("/orders", authmw.TokenMW(), h.GetOrders)
+		userRoutes.GET("/balance", authmw.TokenMW(), h.GetBalance)
+		userRoutes.POST("/balance/withdraw", authmw.TokenMW(), h.PostWithdraw)
 		userRoutes.GET("/balance/withdrawals")
 	}
 	return router

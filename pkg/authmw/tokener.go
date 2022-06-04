@@ -1,4 +1,4 @@
-package authMW
+package authmw
 
 import (
 	"errors"
@@ -19,18 +19,18 @@ func (s Session) IsExpired() bool {
 	return s.Expiry.Before(time.Now())
 }
 
-func CreateToken(userId int) (string, time.Time) {
+func CreateToken(userID int) (string, time.Time) {
 	sessionToken := uuid.NewString()
 	expiresAt := time.Now().Add(6 * time.Hour)
 	Sessions[sessionToken] = Session{
-		UserID: userId,
+		UserID: userID,
 		Expiry: expiresAt,
 	}
 	return sessionToken, expiresAt
 }
 
 func GetLoginFromToken(sessionToken string) int {
-	userSession, _ := Sessions[sessionToken]
+	userSession := Sessions[sessionToken]
 	return userSession.UserID
 }
 

@@ -32,6 +32,10 @@ func (l *Logger) EasyLogError(prefix, message, data string, reportedErr error) {
 		Msgf(message + data)
 }
 
+func (l *Logger) EasyLogCloseRowsErr(err error) {
+	l.EasyLogError("db", "failed to close rows", "", err)
+}
+
 func (l *Logger) EasyLogFatal(prefix, message, data string, reportedErr error) {
 	log.Fatal().
 		Err(reportedErr).

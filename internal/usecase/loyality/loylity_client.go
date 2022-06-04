@@ -8,6 +8,7 @@ import (
 	"final_quest/internal/repository"
 	"final_quest/pkg/logging"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -38,6 +39,12 @@ func (a *AccountingService) GetPointsInfoByOrder(ctx context.Context, order stri
 	}
 	if response.StatusCode == http.StatusOK {
 		body, err := ioutil.ReadAll(response.Body)
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+				a.logger.EasyLogError("accounting service", "failed to close response.Body", "", err)
+			}
+		}(response.Body)
 		if err != nil {
 			return err
 		}
@@ -47,6 +54,9 @@ func (a *AccountingService) GetPointsInfoByOrder(ctx context.Context, order stri
 			return err
 		}
 		err = a.HandleOrderInfo(ctx, orderInfo)
+		if err != nil {
+			return err
+		}
 	}
 	return err
 }

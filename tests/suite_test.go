@@ -5,7 +5,7 @@ import (
 	"final_quest/internal/repository"
 	"final_quest/internal/server"
 	"final_quest/internal/usecase/users"
-	"final_quest/pkg/authMW"
+	"final_quest/pkg/authmw"
 	"final_quest/pkg/logging"
 	"github.com/lamoda/gonkey/runner"
 	"log"
@@ -38,7 +38,7 @@ func TestFuncCases(t *testing.T) {
 	if err != nil {
 		logger.EasyLogFatal("tests", "failed to prepare db test data", "", err)
 	}
-	authMW.PrepareTestTokens()
+	authmw.PrepareTestTokens()
 	defer srv.Close()
 	defer dbClient.Close()
 	defer appRepository.DropTables()

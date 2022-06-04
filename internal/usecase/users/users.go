@@ -58,10 +58,10 @@ func (u *Users) GetUserID(ctx context.Context, login string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	return usersData.Id, nil
+	return usersData.ID, nil
 }
 
-func (u *Users) SaveOrderNumber(ctx context.Context, userId int, orderNumber string) error {
+func (u *Users) SaveOrderNumber(ctx context.Context, userID int, orderNumber string) error {
 	number := strings.Replace(orderNumber, "\n", "", 1)
 	i, err := strconv.Atoi(number)
 	if err != nil {
@@ -73,12 +73,12 @@ func (u *Users) SaveOrderNumber(ctx context.Context, userId int, orderNumber str
 		return errs.ErrInvalidOrderNumber
 	}
 	// checking is order already exist
-	err = u.repository.CheckOrder(ctx, userId, orderNumber)
+	err = u.repository.CheckOrder(ctx, userID, orderNumber)
 	if err != nil {
 		return err
 	}
 	// saving order
-	err = u.repository.SaveOrder(ctx, userId, orderNumber)
+	err = u.repository.SaveOrder(ctx, userID, orderNumber)
 	return err
 }
 
