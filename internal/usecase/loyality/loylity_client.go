@@ -77,10 +77,11 @@ func (a *AccountingService) HandleOrderInfo(ctx context.Context, orderData model
 }
 
 func (a *AccountingService) RunAccountingService() {
-	ctx := context.Background()
 	for {
+		ctx := context.Background()
 		orderList, err := a.repository.GetAllOpenedOrders(ctx)
 		if err != nil {
+			fmt.Println("ERRROR")
 			break
 		}
 		if len(orderList) > 0 {
@@ -91,8 +92,7 @@ func (a *AccountingService) RunAccountingService() {
 					a.logger.EasyLogError("accrual", "failed to get order info", v, err)
 				}
 			}
-		} else {
-			time.Sleep(180000)
 		}
+		time.Sleep(1800)
 	}
 }
