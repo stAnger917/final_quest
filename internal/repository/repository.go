@@ -80,15 +80,15 @@ func (ar *AppRepo) GetUserByLogin(ctx context.Context, userLogin string) (models
 	var result models.UserData
 	sqlString := fmt.Sprintf("SELECT id, login, password FROM users WHERE login = '%s';", userLogin)
 	rows, err := ar.db.QueryContext(ctx, sqlString)
-	if err != nil {
-		return models.UserData{}, err
-	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
 			ar.logger.EasyLogCloseRowsErr(err)
 		}
 	}(rows)
+	if err != nil {
+		return models.UserData{}, err
+	}
 	for rows.Next() {
 		item := models.UserData{}
 		err = rows.Scan(&item.ID, &item.Login, &item.Password)
