@@ -34,7 +34,7 @@ func main() {
 	}
 	appUsersService := users.NewUsersUseCase(appRepository, logger)
 	accrualService := loyality.NewAccountingService(appRepository, logger, cfg.AccrualSystemAddress)
-	appUsersHandler := server.InitAppHandler(appUsersService, logger)
+	appUsersHandler := server.InitAppHandler(appUsersService, logger, accrualService)
 	srv := server.InitNewServer(cfg.RunAddress, appUsersHandler.Init())
 	err = srv.Run()
 	accrualService.RunAccountingService()

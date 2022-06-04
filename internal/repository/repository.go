@@ -412,3 +412,31 @@ func (ar *AppRepo) GetUserWithdrawals(ctx context.Context, userID int) (models.W
 	}
 	return data, nil
 }
+
+func (ar *AppRepo) GetOrder(ctx context.Context, orderNum string) (models.SingleOrder, error) {
+	var data models.SingleOrder
+	sqlString := fmt.Sprintf("SELECT orders_number, orders_status, accrual FROM user_orders WHERE orders_number = '%s';", orderNum)
+	rows, err := ar.db.QueryContext(ctx, sqlString)
+	if err != nil {
+		return models.SingleOrder{}, err
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			ar.logger.EasyLogCloseRowsErr(err)
+		}
+	}(rows)
+	for rows.Next() {
+		item := models.SingleOrder{}
+		err = rows.Scan(&item.Order, &item.Status, &item.Accrual)
+		if err != nil {
+			return models.SingleOrder{}, err
+		}
+		data = models.SingleOrder{
+			Order:   item.Order,
+			Status:  item.Status,
+			Accrual: item.Accrual,
+		}
+	}
+	return data, nil
+}

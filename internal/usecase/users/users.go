@@ -118,6 +118,14 @@ func (u *Users) GetWithdrawals(ctx context.Context, userID int) (models.Withdraw
 	return res, nil
 }
 
+func (u *Users) GetUserOrder(ctx context.Context, orderNum string) (models.SingleOrder, error) {
+	data, err := u.repository.GetOrder(ctx, orderNum)
+	if err != nil {
+		return models.SingleOrder{}, err
+	}
+	return data, nil
+}
+
 func swapOrders(ar []models.OrderData, i, j int) {
 	tmp := ar[i]
 	ar[i] = ar[j]
