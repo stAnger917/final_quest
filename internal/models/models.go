@@ -58,3 +58,13 @@ type OrderAccountingInfo struct {
 type OrderNumber struct {
 	Number string
 }
+
+type Withdrawals struct {
+	Data []WithdrawInfo
+}
+
+type WithdrawInfo struct {
+	Order       string  `json:"order"`
+	Sum         float32 `json:"sum"`
+	ProcessedAt string  `json:"processed_at"`
+}

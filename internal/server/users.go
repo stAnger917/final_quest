@@ -174,3 +174,22 @@ func (h *AppHandler) PostWithdraw(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 }
+
+func (h *AppHandler) GetWithdrawals(c *gin.Context) {
+	token, err := c.Cookie("session_token")
+	if err != nil {
+		c.String(http.StatusUnauthorized, err.Error())
+		return
+	}
+	userID := authmw.GetLoginFromToken(token)
+	res, err := h.userService.GetWithdrawals(context.Context(c), userID)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+	if len(res.Data) == 0 {
+		c.JSON(http.StatusNoContent, map[string]string{"status": "no withdrawals"})
+		return
+	}
+	c.JSON(http.StatusOK, res.Data)
+}

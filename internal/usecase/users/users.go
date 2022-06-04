@@ -87,7 +87,7 @@ func (u *Users) GetUserOrders(ctx context.Context, userID int) ([]models.OrderDa
 	if err != nil {
 		return []models.OrderData{}, err
 	}
-	sortOrdersByDate(data)
+	sortOrdersByDateInc(data)
 	return data, nil
 }
 
@@ -109,13 +109,22 @@ func (u *Users) MakeWithdraw(ctx context.Context, userID int, orderNumber string
 	return err
 }
 
+func (u *Users) GetWithdrawals(ctx context.Context, userID int) (models.Withdrawals, error) {
+	res, err := u.repository.GetUserWithdrawals(ctx, userID)
+	if err != nil {
+		return models.Withdrawals{}, err
+	}
+	sortOrdersByDateDesc(res.Data)
+	return res, nil
+}
+
 func swapOrders(ar []models.OrderData, i, j int) {
 	tmp := ar[i]
 	ar[i] = ar[j]
 	ar[j] = tmp
 }
 
-func sortOrdersByDate(data []models.OrderData) {
+func sortOrdersByDateInc(data []models.OrderData) {
 	for i := 0; i < len(data); i++ {
 		for j := i; j < len(data); j++ {
 			if carbon.Parse(data[i].UploadedAt).Compare(">", carbon.Parse(data[j].UploadedAt)) {
@@ -123,4 +132,20 @@ func sortOrdersByDate(data []models.OrderData) {
 			}
 		}
 	}
+}
+
+func sortOrdersByDateDesc(data []models.WithdrawInfo) {
+	for i := 0; i < len(data); i++ {
+		for j := i; j < len(data); j++ {
+			if carbon.Parse(data[i].ProcessedAt).Compare("<", carbon.Parse(data[j].ProcessedAt)) {
+				swapWithdrawals(data, i, j)
+			}
+		}
+	}
+}
+
+func swapWithdrawals(ar []models.WithdrawInfo, i, j int) {
+	tmp := ar[i]
+	ar[i] = ar[j]
+	ar[j] = tmp
 }

@@ -388,3 +388,27 @@ func (ar *AppRepo) GetAllOpenedOrders(ctx context.Context) ([]string, error) {
 	}
 	return result, nil
 }
+
+func (ar *AppRepo) GetUserWithdrawals(ctx context.Context, userID int) (models.Withdrawals, error) {
+	var data models.Withdrawals
+	sqlString := fmt.Sprintf("SELECT orders_number, sum, processed_at FROM withdraw_history WHERE user_id = %v;", userID)
+	rows, err := ar.db.QueryContext(ctx, sqlString)
+	if err != nil {
+		return models.Withdrawals{}, err
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			ar.logger.EasyLogCloseRowsErr(err)
+		}
+	}(rows)
+	for rows.Next() {
+		item := models.WithdrawInfo{}
+		err = rows.Scan(&item.Order, &item.Sum, &item.ProcessedAt)
+		if err != nil {
+			return models.Withdrawals{}, err
+		}
+		data.Data = append(data.Data, item)
+	}
+	return data, nil
+}
