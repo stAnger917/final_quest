@@ -5,6 +5,7 @@ import (
 	"final_quest/configuration"
 	"final_quest/internal/repository"
 	"final_quest/internal/server"
+	"final_quest/internal/usecase/loyality"
 	"final_quest/internal/usecase/users"
 	"final_quest/pkg/logging"
 	"log"
@@ -32,9 +33,11 @@ func main() {
 		logger.EasyLogFatal("main", "failed to init db tables", "", err)
 	}
 	appUsersService := users.NewUsersUseCase(appRepository, logger)
+	accrualService := loyality.NewAccountingService(appRepository, logger, cfg.AccrualSystemAddress)
 	appUsersHandler := server.InitAppHandler(appUsersService, logger)
 	srv := server.InitNewServer(cfg.RunAddress, appUsersHandler.Init())
 	err = srv.Run()
+	accrualService.RunAccountingService()
 	logger.EasyLogInfo("main", "running server on: ", cfg.RunAddress)
 	if err != nil {
 		logger.EasyLogFatal("main", "failed to run server on: ", cfg.RunAddress, err)

@@ -29,6 +29,10 @@ type OrderInfo struct {
 	Number string
 }
 
+type OrderOwner struct {
+	UserID int
+}
+
 type UserBalanceInfo struct {
 	Current  float32 `json:"current"`
 	Withdraw float32 `json:"withdraw"`
@@ -43,4 +47,14 @@ type UserBalance struct {
 type WithdrawData struct {
 	Order string  `json:"order"`
 	Sum   float32 `json:"sum"`
+}
+
+type OrderAccountingInfo struct {
+	Order   string  `json:"order"`
+	Status  string  `json:"status"`
+	Accrual float32 `json:"accrual"`
+}
+
+type OrderNumber struct {
+	Number string
 }

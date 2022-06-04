@@ -281,3 +281,72 @@ func (ar *AppRepo) CheckOrderForWithdraw(ctx context.Context, userID int, orderN
 	}
 	return nil
 }
+
+func (ar *AppRepo) AddAccrualPoints(ctx context.Context, userID int, sum float32) error {
+	tx, err := ar.db.Begin()
+	if err != nil {
+		return err
+	}
+	// checking user`s balance
+	balanceInfo, err := ar.GetUserBalanceByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	// if ok - make withdraw
+	newBalance := balanceInfo.Current + sum
+	// setting new values in user_balance table
+	sqlString := fmt.Sprintf("UPDATE user_balance "+
+		"SET current_balance = %v, "+
+		"WHERE user_id = %v;", newBalance, userID)
+	_, err = ar.db.ExecContext(ctx, sqlString)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	err = tx.Commit()
+	return err
+}
+
+func (ar *AppRepo) ChangeOrderStatusByOrderNum(ctx context.Context, orderNum, status string) error {
+	sqlString := fmt.Sprintf("UPDATE user_orders SET orders_status = '%s' WHERE orders_number = '%s';", status, orderNum)
+	_, err := ar.db.QueryContext(ctx, sqlString)
+	return err
+}
+
+func (ar *AppRepo) GetUserIDByOrderNum(ctx context.Context, orderNum string) (models.OrderOwner, error) {
+	var userID models.OrderOwner
+	sqlString := fmt.Sprintf("SELECT user_id FROM user_orders WHERE orders_number = '%v';", orderNum)
+	rows, err := ar.db.QueryContext(ctx, sqlString)
+	if err != nil {
+		return models.OrderOwner{}, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		item := models.OrderOwner{}
+		err = rows.Scan(&item.UserID)
+		if err != nil {
+			return models.OrderOwner{}, err
+		}
+		userID = models.OrderOwner{UserID: item.UserID}
+	}
+	return userID, nil
+}
+
+func (ar *AppRepo) GetAllOpenedOrders(ctx context.Context) ([]string, error) {
+	var result []string
+	sqlString := "SELECT orders_numder FROM user_orders WHERE orders_status == 'REGISTRED' OR  orders_status == 'PROCESSING';"
+	rows, err := ar.db.QueryContext(ctx, sqlString)
+	if err != nil {
+		return []string{}, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		item := models.OrderNumber{}
+		err = rows.Scan(&item.Number)
+		if err != nil {
+			return []string{}, err
+		}
+		result = append(result, item.Number)
+	}
+	return result, nil
+}
