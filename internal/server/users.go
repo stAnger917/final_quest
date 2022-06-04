@@ -31,6 +31,13 @@ func (h *AppHandler) UserRegistration(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		return
 	}
+	userID, err := h.userService.GetUserID(context.Context(c), requestData.Login)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+	token, _ := authmw.CreateToken(userID)
+	c.SetCookie("session_token", token, 60*60*24, "", "localhost", false, false)
 	c.JSON(http.StatusOK, map[string]string{"status": "created"})
 }
 
