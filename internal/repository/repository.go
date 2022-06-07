@@ -324,7 +324,7 @@ func (ar *AppRepo) AddAccrualPoints(ctx context.Context, userID int, sum float32
 	newBalance := balanceInfo.Current + sum
 	// setting new values in user_balance table
 	sqlString := fmt.Sprintf("UPDATE user_balance "+
-		"SET current_balance = %v, "+
+		"SET current_balance = %v "+
 		"WHERE user_id = %v;", newBalance, userID)
 	_, err = ar.db.ExecContext(ctx, sqlString)
 	if err != nil {
