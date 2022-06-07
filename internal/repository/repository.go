@@ -321,7 +321,8 @@ func (ar *AppRepo) AddAccrualPoints(ctx context.Context, userID int, sum float32
 	//}
 	// checking user`s balance
 	checkBalance, err := ar.CheckIfBalanceExist(ctx, userID)
-	if !checkBalance && err == nil {
+	if !checkBalance {
+		fmt.Println("Creating new record in balance")
 		sqlString := fmt.Sprintf("INSERT INTO user_balance (current_balance, user_id, withdraw) VALUES (%v, %v, 0);", sum, userID)
 		_, err = ar.db.ExecContext(ctx, sqlString)
 		if err != nil {
