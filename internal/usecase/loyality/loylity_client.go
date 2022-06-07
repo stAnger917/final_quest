@@ -80,7 +80,7 @@ func (a *AccountingService) HandleOrderInfo(ctx context.Context, orderData model
 			return err
 		}
 	}
-	a.logger.EasyLogInfo("accrual service", "request in db to change order status for order: ", orderData.Order)
+	a.logger.EasyLogInfo("accrual service", "request in db to change order status for order: ", fmt.Sprintf("order: %s, status: %s", orderData.Order, orderData.Status))
 	err := a.repository.ChangeOrderStatusByOrderNum(ctx, orderData.Order, orderData.Status)
 	if err != nil {
 		a.logger.EasyLogError("accrual", "failed to change order status", orderData.Order, err)
@@ -90,7 +90,7 @@ func (a *AccountingService) HandleOrderInfo(ctx context.Context, orderData model
 
 func (a *AccountingService) RunAccountingService() {
 	for {
-		ctx := context.TODO()
+		ctx := context.Background()
 		a.logger.EasyLogInfo("accrual service", "starting accrual service, collecting orders", "")
 		orderList, err := a.repository.GetAllOpenedOrders(ctx)
 		if err != nil {
