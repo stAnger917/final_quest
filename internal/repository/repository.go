@@ -227,7 +227,7 @@ func (ar *AppRepo) GetUserBalanceByID(ctx context.Context, userID int) (models.U
 	}(rows)
 	for rows.Next() {
 		item := models.UserBalance{}
-		err = rows.Scan(&item.UserID, &item.Withdraw, &item.Current)
+		err = rows.Scan(&item.UserID, &item.Current, &item.Withdraw)
 		if err != nil {
 			return models.UserBalanceInfo{}, err
 		}
