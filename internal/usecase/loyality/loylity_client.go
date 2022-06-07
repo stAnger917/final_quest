@@ -68,16 +68,24 @@ func (a *AccountingService) GetPointsInfoByOrder(ctx context.Context, order stri
 
 func (a *AccountingService) HandleOrderInfo(ctx context.Context, orderData models.OrderAccountingInfo) error {
 	if orderData.Accrual != 0 {
+		a.logger.EasyLogInfo("accrual service", "request in db to get userID for order: ", orderData.Order)
 		userID, err := a.repository.GetUserIDByOrderNum(ctx, orderData.Order)
 		if err != nil {
+			a.logger.EasyLogError("accrual", "failed to get userID for order: ", orderData.Order, err)
 			return err
 		}
+		a.logger.EasyLogInfo("accrual service", "request in db to add points for user. Got data: ", fmt.Sprintf("userID: %v, accrual: %v", userID.UserID, orderData.Accrual))
 		err = a.repository.AddAccrualPoints(ctx, userID.UserID, orderData.Accrual)
 		if err != nil {
+			a.logger.EasyLogError("accrual", "failed to add points to user", orderData.Order, err)
 			return err
 		}
 	}
+	a.logger.EasyLogInfo("accrual service", "request in db to change order status for order: ", orderData.Order)
 	err := a.repository.ChangeOrderStatusByOrderNum(ctx, orderData.Order, orderData.Status)
+	if err != nil {
+		a.logger.EasyLogError("accrual", "failed to change order status", orderData.Order, err)
+	}
 	return err
 }
 
@@ -96,7 +104,7 @@ func (a *AccountingService) RunAccountingService() {
 				a.logger.EasyLogInfo("accrual service", "requesting info for: ", v)
 				err = a.GetPointsInfoByOrder(ctx, v)
 				if err != nil {
-					a.logger.EasyLogError("accrual", "failed to get order info", v, err)
+					a.logger.EasyLogError("accrual", "failed to get order info: ", v, err)
 				}
 			}
 		}
