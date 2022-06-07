@@ -90,7 +90,6 @@ func (a *AccountingService) RunAccountingService() {
 			fmt.Println(err)
 			break
 		}
-		a.logger.EasyLogInfo("accrual service", "got order list for accrual pointing", "")
 		if len(orderList) > 0 {
 			for _, v := range orderList {
 				// todo: make go func
