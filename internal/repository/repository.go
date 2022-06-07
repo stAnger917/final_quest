@@ -354,6 +354,12 @@ func (ar *AppRepo) ChangeOrderStatusByOrderNum(ctx context.Context, orderNum, st
 	return err
 }
 
+func (ar *AppRepo) ChangeOrderAccrualByOrderNum(ctx context.Context, orderNum string, accrual float32) error {
+	sqlString := fmt.Sprintf("UPDATE user_orders SET accrual = %v WHERE orders_number = '%s';", accrual, orderNum)
+	_, err := ar.db.QueryContext(ctx, sqlString)
+	return err
+}
+
 func (ar *AppRepo) GetUserIDByOrderNum(ctx context.Context, orderNum string) (models.OrderOwner, error) {
 	var userID models.OrderOwner
 	sqlString := fmt.Sprintf("SELECT user_id FROM user_orders WHERE orders_number = '%s';", orderNum)
