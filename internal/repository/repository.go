@@ -337,6 +337,11 @@ func (ar *AppRepo) AddAccrualPoints(ctx context.Context, userID int, sum float32
 	//	return err
 	//}
 	//err = tx.Commit()
+	balanceInfo, err = ar.GetUserBalanceByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	fmt.Println("NEW BALANCE: ", balanceInfo.Current)
 	return err
 }
 
