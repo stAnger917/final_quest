@@ -62,7 +62,6 @@ func (a *AccountingService) GetPointsInfoByOrder(ctx context.Context, order stri
 		}
 		a.logger.EasyLogInfo("accrual service", "order data handled in db", err.Error())
 	}
-
 	return err
 }
 
@@ -103,7 +102,7 @@ func (a *AccountingService) RunAccountingService() {
 				a.logger.EasyLogInfo("accrual service", "requesting info for: ", v)
 				err = a.GetPointsInfoByOrder(ctx, v)
 				if err != nil {
-					a.logger.EasyLogError("accrual", "failed to get order info: ", v, err)
+					a.logger.EasyLogError("accrual", "failed to get order info", "", err)
 				}
 			}
 		}
