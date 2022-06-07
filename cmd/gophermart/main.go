@@ -36,8 +36,8 @@ func main() {
 	accrualService := loyality.NewAccountingService(appRepository, logger, cfg.AccrualSystemAddress)
 	appUsersHandler := server.InitAppHandler(appUsersService, logger, accrualService)
 	srv := server.InitNewServer(cfg.RunAddress, appUsersHandler.Init())
-	err = srv.Run()
 	accrualService.RunAccountingService()
+	err = srv.Run()
 	logger.EasyLogInfo("main", "running server on: ", cfg.RunAddress)
 	if err != nil {
 		logger.EasyLogFatal("main", "failed to run server on: ", cfg.RunAddress, err)
