@@ -367,7 +367,7 @@ func (ar *AppRepo) GetUserIDByOrderNum(ctx context.Context, orderNum string) (mo
 
 func (ar *AppRepo) GetAllOpenedOrders(ctx context.Context) ([]string, error) {
 	var result []string
-	sqlString := "SELECT orders_numder FROM user_orders WHERE orders_status == 'REGISTRED' OR  orders_status == 'PROCESSING';"
+	sqlString := "SELECT orders_number FROM user_orders WHERE orders_status = 'REGISTRED' OR  orders_status = 'PROCESSING';"
 	rows, err := ar.db.QueryContext(ctx, sqlString)
 	if err != nil {
 		return []string{}, err

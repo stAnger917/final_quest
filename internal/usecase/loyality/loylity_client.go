@@ -87,7 +87,7 @@ func (a *AccountingService) RunAccountingService() {
 		a.logger.EasyLogInfo("accrual service", "starting accrual service, collecting orders", "")
 		orderList, err := a.repository.GetAllOpenedOrders(ctx)
 		if err != nil {
-			fmt.Println("ERRROR")
+			fmt.Println(err)
 			break
 		}
 		a.logger.EasyLogInfo("accrual service", "got order list for accrual pointing", "")
@@ -102,6 +102,6 @@ func (a *AccountingService) RunAccountingService() {
 			}
 		}
 		a.logger.EasyLogInfo("accrual service", "all job done - resting", "")
-		time.Sleep(1800)
+		time.Sleep(3 * time.Minute)
 	}
 }
