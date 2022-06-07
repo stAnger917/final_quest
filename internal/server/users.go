@@ -6,6 +6,7 @@ import (
 	"final_quest/internal/errs"
 	"final_quest/internal/models"
 	"final_quest/pkg/authmw"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -130,6 +131,7 @@ func (h *AppHandler) GetBalance(c *gin.Context) {
 		return
 	}
 	userID := authmw.GetLoginFromToken(token)
+	fmt.Println("REQUESTING BALANCE for: ", userID)
 	res, err := h.userService.GetUserBalance(context.Context(c), userID)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
