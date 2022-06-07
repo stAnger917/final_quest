@@ -213,6 +213,7 @@ func (ar *AppRepo) GetOrdersByUserID(ctx context.Context, userID int) ([]models.
 
 func (ar *AppRepo) GetUserBalanceByID(ctx context.Context, userID int) (models.UserBalanceInfo, error) {
 	var data models.UserBalanceInfo
+	fmt.Println("Got repository call for balance")
 	sqlString := fmt.Sprintf("SELECT user_id, current_balance, withdraw FROM user_balance WHERE user_id = %v;", userID)
 	rows, err := ar.db.QueryContext(ctx, sqlString)
 	if err != nil {

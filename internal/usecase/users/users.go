@@ -8,6 +8,7 @@ import (
 	"final_quest/internal/usecase/loyality"
 	"final_quest/pkg/hasher"
 	"final_quest/pkg/logging"
+	"fmt"
 	"github.com/golang-module/carbon/v2"
 	"github.com/theplant/luhn"
 	"strconv"
@@ -99,6 +100,7 @@ func (u *Users) GetUserOrders(ctx context.Context, userID int) ([]models.OrderDa
 }
 
 func (u *Users) GetUserBalance(ctx context.Context, userID int) (models.UserBalanceInfo, error) {
+	fmt.Println("Got use case request for balance")
 	data, err := u.repository.GetUserBalanceByID(ctx, userID)
 	if err != nil {
 		return models.UserBalanceInfo{}, err
