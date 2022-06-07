@@ -5,6 +5,7 @@ import (
 	"final_quest/internal/errs"
 	"final_quest/internal/models"
 	"final_quest/internal/repository"
+	"final_quest/internal/usecase/loyality"
 	"final_quest/pkg/hasher"
 	"final_quest/pkg/logging"
 	"github.com/golang-module/carbon/v2"
@@ -14,14 +15,16 @@ import (
 )
 
 type Users struct {
-	repository *repository.AppRepo
-	logger     *logging.Logger
+	repository        *repository.AppRepo
+	logger            *logging.Logger
+	accountingService *loyality.AccountingService
 }
 
-func NewUsersUseCase(repo *repository.AppRepo, logger *logging.Logger) *Users {
+func NewUsersUseCase(repo *repository.AppRepo, logger *logging.Logger, accountingService *loyality.AccountingService) *Users {
 	return &Users{
-		repository: repo,
-		logger:     logger,
+		repository:        repo,
+		logger:            logger,
+		accountingService: accountingService,
 	}
 }
 
@@ -79,6 +82,10 @@ func (u *Users) SaveOrderNumber(ctx context.Context, userID int, orderNumber str
 	}
 	// saving order
 	err = u.repository.SaveOrder(ctx, userID, orderNumber)
+	if err != nil {
+		return err
+	}
+	err = u.accountingService.GetPointsInfoByOrder(ctx, orderNumber)
 	return err
 }
 
@@ -87,8 +94,18 @@ func (u *Users) GetUserOrders(ctx context.Context, userID int) ([]models.OrderDa
 	if err != nil {
 		return []models.OrderData{}, err
 	}
-	sortOrdersByDateInc(data)
-	return data, nil
+	for _, v := range data {
+		err = u.accountingService.GetPointsInfoByOrder(ctx, v.Number)
+		if err != nil {
+			return []models.OrderData{}, err
+		}
+	}
+	updatedData, err := u.repository.GetOrdersByUserID(ctx, userID)
+	if err != nil {
+		return []models.OrderData{}, err
+	}
+	sortOrdersByDateInc(updatedData)
+	return updatedData, nil
 }
 
 func (u *Users) GetUserBalance(ctx context.Context, userID int) (models.UserBalanceInfo, error) {

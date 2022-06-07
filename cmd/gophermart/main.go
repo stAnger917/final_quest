@@ -32,8 +32,8 @@ func main() {
 	if err != nil {
 		logger.EasyLogFatal("main", "failed to init db tables", "", err)
 	}
-	appUsersService := users.NewUsersUseCase(appRepository, logger)
 	accrualService := loyality.NewAccountingService(appRepository, logger, cfg.AccrualSystemAddress)
+	appUsersService := users.NewUsersUseCase(appRepository, logger, accrualService)
 	appUsersHandler := server.InitAppHandler(appUsersService, logger, accrualService)
 	srv := server.InitNewServer(cfg.RunAddress, appUsersHandler.Init())
 	go accrualService.RunAccountingService()
