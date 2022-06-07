@@ -60,7 +60,6 @@ func (a *AccountingService) GetPointsInfoByOrder(ctx context.Context, order stri
 		if err != nil {
 			return err
 		}
-		a.logger.EasyLogInfo("accrual service", "order data handled in db", err.Error())
 	}
 	return err
 }
