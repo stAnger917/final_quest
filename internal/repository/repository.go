@@ -230,6 +230,7 @@ func (ar *AppRepo) GetUserBalanceByID(ctx context.Context, userID int) (models.U
 		if err != nil {
 			return models.UserBalanceInfo{}, err
 		}
+		fmt.Println("BALANCE DATA ", item.Current, item.Withdraw)
 		data = models.UserBalanceInfo{
 			Current:  item.Current,
 			Withdraw: item.Withdraw,
