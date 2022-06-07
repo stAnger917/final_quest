@@ -94,18 +94,8 @@ func (u *Users) GetUserOrders(ctx context.Context, userID int) ([]models.OrderDa
 	if err != nil {
 		return []models.OrderData{}, err
 	}
-	for _, v := range data {
-		err = u.accountingService.GetPointsInfoByOrder(ctx, v.Number)
-		if err != nil {
-			return []models.OrderData{}, err
-		}
-	}
-	updatedData, err := u.repository.GetOrdersByUserID(ctx, userID)
-	if err != nil {
-		return []models.OrderData{}, err
-	}
-	sortOrdersByDateInc(updatedData)
-	return updatedData, nil
+	sortOrdersByDateInc(data)
+	return data, nil
 }
 
 func (u *Users) GetUserBalance(ctx context.Context, userID int) (models.UserBalanceInfo, error) {
