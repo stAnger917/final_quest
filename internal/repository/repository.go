@@ -235,6 +235,7 @@ func (ar *AppRepo) GetUserBalanceByID(ctx context.Context, userID int) (models.U
 			Withdraw: item.Withdraw,
 		}
 	}
+	ar.logger.EasyLogInfo("db", "got balance data:", fmt.Sprintf("current: %v, withdraw: %v", data.Current, data.Withdraw))
 	return data, nil
 }
 
