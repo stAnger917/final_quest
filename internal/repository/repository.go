@@ -323,6 +323,7 @@ func (ar *AppRepo) AddAccrualPoints(ctx context.Context, userID int, sum float32
 	}
 	// if ok - make withdraw
 	newBalance := balanceInfo.Current + sum
+	fmt.Println("NEW USER BALANCE: ", newBalance)
 	// setting new values in user_balance table
 	sqlString := fmt.Sprintf("UPDATE user_balance "+
 		"SET current_balance = %v "+
