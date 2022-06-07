@@ -21,7 +21,7 @@ func (ar *AppRepo) CreateTableUserOrders() error {
 }
 
 func (ar *AppRepo) CreateTableUserBalance() error {
-	_, err := ar.db.Exec("CREATE TABLE IF NOT EXISTS user_balance(id SERIAL PRIMARY KEY, user_id INTEGER UNIQUE NOT NULL, current_balance REAL DEFAULT 0, withdraw REAL DEFAULT 0, CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id))")
+	_, err := ar.db.Exec("CREATE TABLE IF NOT EXISTS user_balance(id SERIAL PRIMARY KEY, user_id INTEGER UNIQUE NOT NULL, current_balance REAL, withdraw REAL, CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id))")
 	if err != nil {
 		ar.logger.EasyLogFatal("repository", "failed to create user_balance table", "", err)
 		return err
