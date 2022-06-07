@@ -104,6 +104,7 @@ func (a *AccountingService) RunAccountingService() {
 				if err != nil {
 					a.logger.EasyLogError("accrual", "failed to get order info", "", err)
 				}
+				a.logger.EasyLogInfo("accrual service", "orderList completed", "")
 			}
 		}
 		a.logger.EasyLogInfo("accrual service", "all job done - resting", "")
