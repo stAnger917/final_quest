@@ -100,7 +100,6 @@ func (a *AccountingService) RunAccountingService() {
 		}
 		if len(orderList) > 0 {
 			for _, v := range orderList {
-				// todo: make go func
 				a.logger.EasyLogInfo("accrual service", "requesting info for: ", v)
 				err = a.GetPointsInfoByOrder(ctx, v)
 				if err != nil {
@@ -109,6 +108,6 @@ func (a *AccountingService) RunAccountingService() {
 			}
 		}
 		a.logger.EasyLogInfo("accrual service", "all job done - resting", "")
-		time.Sleep(20 * time.Second)
+		time.Sleep(30 * time.Second)
 	}
 }
