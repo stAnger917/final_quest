@@ -12,7 +12,7 @@ func (ar *AppRepo) CreateTableUsers() error {
 }
 
 func (ar *AppRepo) CreateTableUserOrders() error {
-	_, err := ar.db.Exec("CREATE TABLE IF NOT EXISTS user_orders(id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL, orders_number VARCHAR(350) UNIQUE NOT NULL,  orders_status VARCHAR (350) NOT NULL, uploaded_at VARCHAR(350) UNIQUE NOT NULL, accrual INTEGER DEFAULT 0, CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id))")
+	_, err := ar.db.Exec("CREATE TABLE IF NOT EXISTS user_orders(id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL, orders_number VARCHAR(350) UNIQUE NOT NULL,  orders_status VARCHAR (350) NOT NULL, uploaded_at VARCHAR(350) UNIQUE NOT NULL, accrual REAL, CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id))")
 	if err != nil {
 		ar.logger.EasyLogFatal("repository", "failed to create user_orders table", "", err)
 		return err
