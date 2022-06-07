@@ -102,6 +102,6 @@ func (a *AccountingService) RunAccountingService() {
 			}
 		}
 		a.logger.EasyLogInfo("accrual service", "all job done - resting", "")
-		time.Sleep(1 * time.Minute)
+		time.Sleep(20 * time.Second)
 	}
 }
