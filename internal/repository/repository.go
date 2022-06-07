@@ -238,6 +238,7 @@ func (ar *AppRepo) GetUserBalanceByID(ctx context.Context, userID int) (models.U
 		}
 
 	}
+	fmt.Println("DATA: ", data)
 	return data, nil
 }
 
