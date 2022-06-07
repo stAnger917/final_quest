@@ -312,10 +312,10 @@ func (ar *AppRepo) CheckOrderForWithdraw(ctx context.Context, userID int, orderN
 }
 
 func (ar *AppRepo) AddAccrualPoints(ctx context.Context, userID int, sum float32) error {
-	tx, err := ar.db.Begin()
-	if err != nil {
-		return err
-	}
+	//tx, err := ar.db.Begin()
+	//if err != nil {
+	//	return err
+	//}
 	// checking user`s balance
 	balanceInfo, err := ar.GetUserBalanceByID(ctx, userID)
 	if err != nil {
@@ -329,11 +329,11 @@ func (ar *AppRepo) AddAccrualPoints(ctx context.Context, userID int, sum float32
 		"SET current_balance = %v "+
 		"WHERE user_id = %v;", newBalance, userID)
 	_, err = ar.db.ExecContext(ctx, sqlString)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	err = tx.Commit()
+	//if err != nil {
+	//	tx.Rollback()
+	//	return err
+	//}
+	//err = tx.Commit()
 	return err
 }
 
