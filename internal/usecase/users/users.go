@@ -8,7 +8,6 @@ import (
 	"final_quest/internal/usecase/loyality"
 	"final_quest/pkg/hasher"
 	"final_quest/pkg/logging"
-	"fmt"
 	"github.com/golang-module/carbon/v2"
 	"github.com/theplant/luhn"
 	"strconv"
@@ -114,7 +113,6 @@ func (u *Users) GetUserBalance(ctx context.Context, userID int) (models.UserBala
 	if err != nil {
 		return models.UserBalanceInfo{}, err
 	}
-	u.logger.EasyLogInfo("use case", "got balance data for user: ", fmt.Sprintf("user: %v, balance: %v", userID, data.Current))
 	return data, nil
 }
 
