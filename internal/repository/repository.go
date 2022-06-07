@@ -343,7 +343,7 @@ func (ar *AppRepo) ChangeOrderStatusByOrderNum(ctx context.Context, orderNum, st
 
 func (ar *AppRepo) GetUserIDByOrderNum(ctx context.Context, orderNum string) (models.OrderOwner, error) {
 	var userID models.OrderOwner
-	sqlString := fmt.Sprintf("SELECT user_id FROM user_orders WHERE orders_number = '%v';", orderNum)
+	sqlString := fmt.Sprintf("SELECT user_id FROM user_orders WHERE orders_number = '%s';", orderNum)
 	rows, err := ar.db.QueryContext(ctx, sqlString)
 	if err != nil {
 		return models.OrderOwner{}, err
