@@ -28,6 +28,7 @@ func main() {
 	}
 
 	appRepository := repository.InitAppDB(dbClient, logger)
+	err = appRepository.DropTables()
 	err = appRepository.InitTables()
 	if err != nil {
 		logger.EasyLogFatal("main", "failed to init db tables", "", err)
