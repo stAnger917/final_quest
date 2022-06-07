@@ -321,8 +321,13 @@ func (ar *AppRepo) AddAccrualPoints(ctx context.Context, userID int, sum float32
 	//}
 	// checking user`s balance
 	checkBalance, err := ar.CheckIfBalanceExist(ctx, userID)
-	if !checkBalance {
-		fmt.Println("BLYAT! NO RECORD")
+	if !checkBalance && err == nil {
+		sqlString := fmt.Sprintf("INSERT INTO user_balance (current_balance, user_id, withdraw) VALUES (%v, %v, 0);", sum, userID)
+		_, err = ar.db.ExecContext(ctx, sqlString)
+		if err != nil {
+			fmt.Println("ERROR", err)
+		}
+		return err
 	}
 	balanceInfo, err := ar.GetUserBalanceByID(ctx, userID)
 	if err != nil {
@@ -339,11 +344,6 @@ func (ar *AppRepo) AddAccrualPoints(ctx context.Context, userID int, sum float32
 		return err
 	}
 	//err = tx.Commit()
-	balanceInfo, err = ar.GetUserBalanceByID(ctx, userID)
-	if err != nil {
-		return err
-	}
-	fmt.Println("NEW BALANCE: ", balanceInfo.Current)
 	return err
 }
 
