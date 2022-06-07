@@ -29,8 +29,10 @@ func NewAccountingService(repo *repository.AppRepo, logger *logging.Logger, URL 
 }
 
 func (a *AccountingService) GetPointsInfoByOrder(ctx context.Context, order string) error {
+	a.logger.EasyLogInfo("accrual service", "sending request for order: ", order)
 	requestURL := a.accountingServiceURL + fmt.Sprintf("/api/orders/%s", order)
 	response, err := http.Get(requestURL)
+	a.logger.EasyLogInfo("accrual service", "request complete, got ", string(response.StatusCode))
 	if err != nil {
 		return err
 	}
@@ -53,11 +55,14 @@ func (a *AccountingService) GetPointsInfoByOrder(ctx context.Context, order stri
 		if err != nil {
 			return err
 		}
+		a.logger.EasyLogInfo("accrual service", "got order data, now - handling info in db: ", fmt.Sprintf("%v", orderInfo))
 		err = a.HandleOrderInfo(ctx, orderInfo)
 		if err != nil {
 			return err
 		}
+		a.logger.EasyLogInfo("accrual service", "order data handled in db", err.Error())
 	}
+
 	return err
 }
 
@@ -79,20 +84,24 @@ func (a *AccountingService) HandleOrderInfo(ctx context.Context, orderData model
 func (a *AccountingService) RunAccountingService() {
 	for {
 		ctx := context.Background()
+		a.logger.EasyLogInfo("accrual service", "starting accrual service, collecting orders", "")
 		orderList, err := a.repository.GetAllOpenedOrders(ctx)
 		if err != nil {
 			fmt.Println("ERRROR")
 			break
 		}
+		a.logger.EasyLogInfo("accrual service", "got order list for accrual pointing", "")
 		if len(orderList) > 0 {
 			for _, v := range orderList {
 				// todo: make go func
+				a.logger.EasyLogInfo("accrual service", "requesting info for: ", v)
 				err = a.GetPointsInfoByOrder(ctx, v)
 				if err != nil {
 					a.logger.EasyLogError("accrual", "failed to get order info", v, err)
 				}
 			}
 		}
+		a.logger.EasyLogInfo("accrual service", "all job done - resting", "")
 		time.Sleep(1800)
 	}
 }
