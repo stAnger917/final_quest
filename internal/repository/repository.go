@@ -227,6 +227,7 @@ func (ar *AppRepo) GetUserBalanceByID(ctx context.Context, userID int) (models.U
 	for rows.Next() {
 		item := models.UserBalance{}
 		err = rows.Scan(&item.UserID, &item.Withdraw, &item.Current)
+		fmt.Println("BALANCE DATA: ", item.UserID, item.Withdraw, item.Current)
 		if err != nil {
 			return models.UserBalanceInfo{}, err
 		}
@@ -235,7 +236,6 @@ func (ar *AppRepo) GetUserBalanceByID(ctx context.Context, userID int) (models.U
 			Withdraw: item.Withdraw,
 		}
 
-		ar.logger.EasyLogInfo("db", "got balance data:", fmt.Sprintf("current: %v, withdraw: %v, userID: %v", data.Current, data.Withdraw, item.UserID))
 	}
 	return data, nil
 }
