@@ -320,6 +320,10 @@ func (ar *AppRepo) AddAccrualPoints(ctx context.Context, userID int, sum float32
 	//	return err
 	//}
 	// checking user`s balance
+	checkBalance, err := ar.CheckIfBalanceExist(ctx, userID)
+	if !checkBalance {
+		fmt.Println("BLYAT! NO RECORD")
+	}
 	balanceInfo, err := ar.GetUserBalanceByID(ctx, userID)
 	if err != nil {
 		return err
@@ -447,4 +451,19 @@ func (ar *AppRepo) GetOrder(ctx context.Context, orderNum string) (models.Single
 		}
 	}
 	return data, nil
+}
+
+func (ar *AppRepo) CheckIfBalanceExist(ctx context.Context, userID int) (bool, error) {
+	var id int
+	var login string
+	sqlString := fmt.Sprintf("SELECT id, FROM user_balance  WHERE user_id = %v;", userID)
+	err := ar.db.QueryRowContext(ctx, sqlString).Scan(&id, &login)
+	switch {
+	case err == sql.ErrNoRows:
+		return false, nil
+	case err != nil:
+		return false, err
+	default:
+		return true, nil
+	}
 }
