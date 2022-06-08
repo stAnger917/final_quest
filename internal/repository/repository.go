@@ -173,7 +173,7 @@ func (ar *AppRepo) CheckIfOrderBelongsToUser(ctx context.Context, userID int, or
 }
 
 func (ar *AppRepo) SaveOrder(ctx context.Context, userID int, ordersNumber string) error {
-	defaultStatus := "REGISTERED"
+	defaultStatus := "NEW"
 	uploadedAt := carbon.Now().ToRfc3339String()
 	sqlString := fmt.Sprintf("insert into user_orders (user_id, orders_number, orders_status, uploaded_at, accrual) values ('%v', '%s', '%s', '%s', 0)", userID, ordersNumber, defaultStatus, uploadedAt)
 	_, err := ar.db.ExecContext(ctx, sqlString)
