@@ -329,7 +329,7 @@ func (ar *AppRepo) AddAccrualPoints(ctx context.Context, userID int, sum float32
 	}
 	//checking user`s balance
 	checkBalance, err := ar.CheckIfBalanceExist(ctx, userID)
-	if !checkBalance {
+	if !checkBalance && err != nil {
 		fmt.Println("Creating new record in balance")
 		sqlString := fmt.Sprintf("INSERT INTO user_balance (current_balance, user_id, withdraw) VALUES (%v, %v, 0);", sum, userID)
 		_, err = ar.db.ExecContext(ctx, sqlString)
@@ -487,4 +487,14 @@ func (ar *AppRepo) CheckIfBalanceExist(ctx context.Context, userID int) (bool, e
 	default:
 		return true, nil
 	}
+}
+
+func (ar *AppRepo) CreateNewUserBalanceRecord(ctx context.Context, userID int) error {
+	sqlString := fmt.Sprintf("INSERT INTO user_balance (current_balance, user_id, withdraw) VALUES (0, %v, 0);", userID)
+	_, err := ar.db.ExecContext(ctx, sqlString)
+	if err != nil {
+		ar.logger.EasyLogError("repository", "failed to create new user`s balance entry in user_balance", "", err)
+		return err
+	}
+	return nil
 }

@@ -38,6 +38,14 @@ func (u *Users) CreateNewUser(ctx context.Context, login, password string) error
 	}
 	hashedPassword := hasher.HashPassword(password)
 	err = u.repository.CreateNewUser(ctx, login, hashedPassword)
+	if err != nil {
+		return err
+	}
+	usersData, err := u.repository.GetUserByLogin(ctx, login)
+	if err != nil {
+		return err
+	}
+	err = u.repository.CreateNewUserBalanceRecord(ctx, usersData.ID)
 	return err
 }
 
@@ -96,9 +104,11 @@ func (u *Users) GetUserOrders(ctx context.Context, userID int) ([]models.OrderDa
 	}
 	sortOrdersByDateInc(data)
 	for _, v := range data {
-		err = u.accountingService.GetPointsInfoByOrder(ctx, v.Number)
-		if err != nil {
-			return []models.OrderData{}, err
+		if v.Status == "REGISTERED" {
+			err = u.accountingService.GetPointsInfoByOrder(ctx, v.Number)
+			if err != nil {
+				return []models.OrderData{}, err
+			}
 		}
 	}
 	updatedData, err := u.repository.GetOrdersByUserID(ctx, userID)
