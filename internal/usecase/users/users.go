@@ -8,7 +8,6 @@ import (
 	"final_quest/internal/usecase/loyality"
 	"final_quest/pkg/hasher"
 	"final_quest/pkg/logging"
-	"fmt"
 	"github.com/golang-module/carbon/v2"
 	"github.com/theplant/luhn"
 	"strconv"
@@ -96,11 +95,21 @@ func (u *Users) GetUserOrders(ctx context.Context, userID int) ([]models.OrderDa
 		return []models.OrderData{}, err
 	}
 	sortOrdersByDateInc(data)
-	return data, nil
+	for _, v := range data {
+		err = u.accountingService.GetPointsInfoByOrder(ctx, v.Number)
+		if err != nil {
+			return []models.OrderData{}, err
+		}
+	}
+	updatedData, err := u.repository.GetOrdersByUserID(ctx, userID)
+	if err != nil {
+		return []models.OrderData{}, err
+	}
+	sortOrdersByDateInc(updatedData)
+	return updatedData, nil
 }
 
 func (u *Users) GetUserBalance(ctx context.Context, userID int) (models.UserBalanceInfo, error) {
-	fmt.Println("Got use case request for balance")
 	data, err := u.repository.GetUserBalanceByID(ctx, userID)
 	if err != nil {
 		return models.UserBalanceInfo{}, err

@@ -95,8 +95,8 @@ func (a *AccountingService) HandleOrderInfo(ctx context.Context, orderData model
 
 func (a *AccountingService) RunAccountingService() {
 	for {
-		time.Sleep(5 * time.Second)
 		ctx := context.Background()
+		time.Sleep(5 * time.Second)
 		a.logger.EasyLogInfo("accrual service", "starting accrual service, collecting orders", "")
 		orderList, err := a.repository.GetAllOpenedOrders(ctx)
 		if err != nil {
