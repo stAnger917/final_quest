@@ -32,6 +32,7 @@ func (a *AccountingService) GetPointsInfoByOrder(ctx context.Context, order stri
 	a.logger.EasyLogInfo("accrual service", "sending request for order: ", order)
 	requestURL := a.accountingServiceURL + fmt.Sprintf("/api/orders/%s", order)
 	response, err := http.Get(requestURL)
+	defer response.Body.Close()
 	a.logger.EasyLogInfo("accrual service", "request complete, got ", fmt.Sprintf("%v", response.StatusCode))
 	if err != nil {
 		return err
