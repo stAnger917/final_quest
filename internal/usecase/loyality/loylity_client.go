@@ -78,7 +78,7 @@ func (a *AccountingService) HandleOrderInfo(ctx context.Context, orderData model
 			a.logger.EasyLogError("accrual", "failed to add points to user", orderData.Order, err)
 			return err
 		}
-		a.logger.EasyLogInfo("accrual service", "request in db to add points in users_orders Got data: ", fmt.Sprintf("userID: %v, accrual: %v", orderData.Order, orderData.Accrual))
+		a.logger.EasyLogInfo("accrual service", "request in db to add points in users_orders Got data: ", fmt.Sprintf("order: %v, accrual: %v", orderData.Order, orderData.Accrual))
 		err = a.repository.ChangeOrderAccrualByOrderNum(ctx, orderData.Order, orderData.Accrual)
 		if err != nil {
 			a.logger.EasyLogError("accrual", "failed to set accrual to user_orders table", orderData.Order, err)

@@ -6,6 +6,7 @@ import (
 	"final_quest/internal/errs"
 	"final_quest/internal/models"
 	"final_quest/pkg/authmw"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -120,6 +121,7 @@ func (h *AppHandler) GetOrders(c *gin.Context) {
 		c.String(http.StatusNoContent, "")
 		return
 	}
+	h.logger.EasyLogInfo("handler", "request completed, sending data: ", fmt.Sprintf("%v", res))
 	c.JSON(http.StatusOK, res)
 }
 
