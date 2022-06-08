@@ -245,15 +245,18 @@ func (ar *AppRepo) GetUserBalanceByID(ctx context.Context, userID int) (models.U
 func (ar *AppRepo) MakeWithdraw(ctx context.Context, userID int, withdrawSum float32, orderNum string) error {
 	tx, err := ar.db.Begin()
 	if err != nil {
+		ar.logger.EasyLogError("repository", "failed to start transaction", "", err)
 		return err
 	}
 	// checking user`s balance
 	balanceInfo, err := ar.GetUserBalanceByID(ctx, userID)
 	if err != nil {
+		ar.logger.EasyLogError("repository", "failed to get user balance for withdraw", "", err)
 		return err
 	}
 	// if ok - make withdraw
 	if balanceInfo.Current < withdrawSum {
+		ar.logger.EasyLogError("repository", "not enough founds for transaction", "", err)
 		return errs.ErrNotEnoughFounds
 	}
 	newBalance := balanceInfo.Current - withdrawSum
@@ -265,6 +268,7 @@ func (ar *AppRepo) MakeWithdraw(ctx context.Context, userID int, withdrawSum flo
 	_, err = ar.db.ExecContext(ctx, sqlString)
 	if err != nil {
 		tx.Rollback()
+		ar.logger.EasyLogError("repository", "failed to update user`s balance", "", err)
 		return err
 	}
 	processedAt := carbon.Now().ToRfc3339String()
@@ -273,11 +277,16 @@ func (ar *AppRepo) MakeWithdraw(ctx context.Context, userID int, withdrawSum flo
 		"VALUES (%v, '%s', %v, '%s')", userID, orderNum, withdrawSum, processedAt)
 	_, err = ar.db.ExecContext(ctx, sqlStringForWithdrawHistory)
 	if err != nil {
+		ar.logger.EasyLogError("repository", "failed to create entry in withdraw_history", "", err)
 		tx.Rollback()
 		return err
 	}
 	err = tx.Commit()
-	return err
+	if err != nil {
+		ar.logger.EasyLogError("repository", "failed to finish transaction", "", err)
+		return err
+	}
+	return nil
 }
 
 func (ar *AppRepo) CheckOrderForWithdraw(ctx context.Context, userID int, orderNumber string) error {
