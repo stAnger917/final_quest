@@ -40,8 +40,8 @@ type OrderOwner struct {
 }
 
 type UserBalanceInfo struct {
-	Current  float32 `json:"current"`
-	Withdraw float32 `json:"withdraw"`
+	Current   float32 `json:"current"`
+	Withdrawn float32 `json:"withdrawn"`
 }
 
 type UserBalance struct {
