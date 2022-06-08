@@ -186,6 +186,7 @@ func (ar *AppRepo) GetOrdersByUserID(ctx context.Context, userID int) ([]models.
 	sqlString := fmt.Sprintf("SELECT orders_number, orders_status, uploaded_at, accrual FROM user_orders WHERE user_id = '%v';", userID)
 	rows, err := ar.db.QueryContext(ctx, sqlString)
 	if err != nil {
+		ar.logger.EasyLogError("repository", "failed to get user orders from db", "", err)
 		return []models.OrderData{}, err
 	}
 	defer func(rows *sql.Rows) {
@@ -198,6 +199,7 @@ func (ar *AppRepo) GetOrdersByUserID(ctx context.Context, userID int) ([]models.
 		item := models.OrderData{}
 		err = rows.Scan(&item.Number, &item.Status, &item.UploadedAt, &item.Accrual)
 		if err != nil {
+			ar.logger.EasyLogError("repository", "failed to scan rows", "", err)
 			return []models.OrderData{}, err
 		}
 		data = models.OrderData{

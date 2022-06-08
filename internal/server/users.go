@@ -195,18 +195,3 @@ func (h *AppHandler) GetWithdrawals(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, res.Data)
 }
-
-func (h *AppHandler) GetUserOrder(c *gin.Context) {
-	orderNum := c.Param("number")
-	err := h.accountingService.GetPointsInfoByOrder(context.Context(c), orderNum)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-	res, err := h.userService.GetUserOrder(context.Context(c), orderNum)
-	if err != nil {
-		c.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-	c.JSON(http.StatusOK, res)
-}

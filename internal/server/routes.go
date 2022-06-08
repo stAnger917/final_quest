@@ -35,6 +35,5 @@ func (h *AppHandler) Init() *gin.Engine {
 		userRoutes.POST("/balance/withdraw", authmw.TokenMW(), h.PostWithdraw)
 		userRoutes.GET("/balance/withdrawals", authmw.TokenMW(), h.GetWithdrawals)
 	}
-	router.GET("/api/orders/:number", authmw.TokenMW(), h.GetUserOrder)
 	return router
 }
