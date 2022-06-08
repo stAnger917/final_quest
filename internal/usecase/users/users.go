@@ -109,10 +109,16 @@ func (u *Users) GetUserBalance(ctx context.Context, userID int) (models.UserBala
 }
 
 func (u *Users) MakeWithdraw(ctx context.Context, userID int, orderNumber string, sum float32) error {
-	// checking order`s number - it must belong to current user
-	err := u.repository.CheckOrderForWithdraw(ctx, userID, orderNumber)
+	// checking order`s number - it must belong to current
+	number := strings.Replace(orderNumber, "\n", "", 1)
+	i, err := strconv.Atoi(number)
 	if err != nil {
 		return err
+	}
+	// checking is order num valid
+	isOrderNumberValid := luhn.Valid(i)
+	if !isOrderNumberValid {
+		return errs.ErrInvalidOrderNumber
 	}
 	err = u.repository.MakeWithdraw(ctx, userID, sum, orderNumber)
 	return err

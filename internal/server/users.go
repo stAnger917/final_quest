@@ -163,7 +163,7 @@ func (h *AppHandler) PostWithdraw(c *gin.Context) {
 			c.JSON(http.StatusPaymentRequired, map[string]string{"error": err.Error()})
 			return
 		}
-		if errors.Is(err, errs.ErrOrderBelongsToAnotherUser) {
+		if errors.Is(err, errs.ErrInvalidOrderNumber) {
 			c.JSON(http.StatusUnprocessableEntity, map[string]string{"error": err.Error()})
 			return
 		}
