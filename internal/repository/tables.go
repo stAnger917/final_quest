@@ -30,7 +30,7 @@ func (ar *AppRepo) CreateTableUserBalance() error {
 }
 
 func (ar *AppRepo) CreateTableWithdrawHistory() error {
-	_, err := ar.db.Exec("CREATE TABLE IF NOT EXISTS withdraw_history(id SERIAL PRIMARY KEY, user_id INTEGER UNIQUE NOT NULL, orders_number VARCHAR(350) UNIQUE NOT NULL, sum REAL DEFAULT 0, processed_at VARCHAR(350) NOT NULL, CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id), CONSTRAINT fk_orders_number FOREIGN KEY (orders_number) REFERENCES user_orders (orders_number))")
+	_, err := ar.db.Exec("CREATE TABLE IF NOT EXISTS withdraw_history(id SERIAL PRIMARY KEY, user_id INTEGER UNIQUE NOT NULL, orders_number VARCHAR(350) UNIQUE NOT NULL, sum REAL DEFAULT 0, processed_at VARCHAR(350) NOT NULL, CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users (id))")
 	if err != nil {
 		ar.logger.EasyLogFatal("repository", "failed to create withdraw_history table", "", err)
 		return err
