@@ -175,7 +175,7 @@ func (ar *AppRepo) CheckIfOrderBelongsToUser(ctx context.Context, userID int, or
 func (ar *AppRepo) SaveOrder(ctx context.Context, userID int, ordersNumber string) error {
 	defaultStatus := "REGISTERED"
 	uploadedAt := carbon.Now().ToRfc3339String()
-	sqlString := fmt.Sprintf("insert into user_orders (user_id, orders_number, orders_status, uploaded_at) values ('%v', '%s', '%s', '%s')", userID, ordersNumber, defaultStatus, uploadedAt)
+	sqlString := fmt.Sprintf("insert into user_orders (user_id, orders_number, orders_status, uploaded_at, accrual) values ('%v', '%s', '%s', '%s', 0)", userID, ordersNumber, defaultStatus, uploadedAt)
 	_, err := ar.db.ExecContext(ctx, sqlString)
 	return err
 }
@@ -326,11 +326,11 @@ func (ar *AppRepo) CheckOrderForWithdraw(ctx context.Context, userID int, orderN
 }
 
 func (ar *AppRepo) AddAccrualPoints(ctx context.Context, userID int, sum float32) error {
-	//tx, err := ar.db.Begin()
-	//if err != nil {
-	//	return err
-	//}
-	// checking user`s balance
+	tx, err := ar.db.Begin()
+	if err != nil {
+		return err
+	}
+	//checking user`s balance
 	checkBalance, err := ar.CheckIfBalanceExist(ctx, userID)
 	if !checkBalance {
 		fmt.Println("Creating new record in balance")
@@ -338,11 +338,13 @@ func (ar *AppRepo) AddAccrualPoints(ctx context.Context, userID int, sum float32
 		_, err = ar.db.ExecContext(ctx, sqlString)
 		if err != nil {
 			fmt.Println("ERROR", err)
+			tx.Rollback()
 		}
 		return err
 	}
 	balanceInfo, err := ar.GetUserBalanceByID(ctx, userID)
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
 	// if ok - make withdraw
@@ -353,10 +355,14 @@ func (ar *AppRepo) AddAccrualPoints(ctx context.Context, userID int, sum float32
 	_, err = ar.db.ExecContext(ctx, sqlString)
 	if err != nil {
 		fmt.Println("ERROR", err)
+		tx.Rollback()
 		return err
 	}
-	//err = tx.Commit()
-	return err
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (ar *AppRepo) ChangeOrderStatusByOrderNum(ctx context.Context, orderNum, status string) error {
