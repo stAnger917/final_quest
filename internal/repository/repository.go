@@ -233,8 +233,8 @@ func (ar *AppRepo) GetUserBalanceByID(ctx context.Context, userID int) (models.U
 		}
 		fmt.Println("BALANCE DATA: ", item.UserID, item.Withdraw, item.Current)
 		data = models.UserBalanceInfo{
-			Current:  item.Current,
-			Withdraw: item.Withdraw,
+			Current:   item.Current,
+			Withdrawn: item.Withdraw,
 		}
 
 	}
@@ -260,7 +260,7 @@ func (ar *AppRepo) MakeWithdraw(ctx context.Context, userID int, withdrawSum flo
 		return errs.ErrNotEnoughFounds
 	}
 	newBalance := balanceInfo.Current - withdrawSum
-	newWithdrawBalance := balanceInfo.Withdraw + withdrawSum
+	newWithdrawBalance := balanceInfo.Withdrawn + withdrawSum
 	// setting new values in user_balance table
 	sqlString := fmt.Sprintf("UPDATE user_balance "+
 		"SET current_balance = %v, "+
