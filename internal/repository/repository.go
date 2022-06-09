@@ -109,12 +109,10 @@ func (ar *AppRepo) CheckOrder(ctx context.Context, userID int, orderNumber strin
 	if err != nil {
 		return err
 	}
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			ar.logger.EasyLogCloseRowsErr(err)
-		}
-	}(rows)
+	defer func() {
+		_ = rows.Close()
+		_ = rows.Err()
+	}()
 	for rows.Next() {
 		item := models.OrderInfo{}
 		err = rows.Scan(&item.UserID, &item.Number)
@@ -145,12 +143,10 @@ func (ar *AppRepo) CheckIfOrderBelongsToUser(ctx context.Context, userID int, or
 	if err != nil {
 		return false, err
 	}
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			ar.logger.EasyLogCloseRowsErr(err)
-		}
-	}(rows)
+	defer func() {
+		_ = rows.Close()
+		_ = rows.Err()
+	}()
 	for rows.Next() {
 		item := models.SingleOrderData{}
 		err = rows.Scan(&item.UserID, &item.Number)
@@ -187,12 +183,10 @@ func (ar *AppRepo) GetOrdersByUserID(ctx context.Context, userID int) ([]models.
 		ar.logger.EasyLogError("repository", "failed to get user orders from db", "", err)
 		return []models.OrderData{}, err
 	}
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			ar.logger.EasyLogCloseRowsErr(err)
-		}
-	}(rows)
+	defer func() {
+		_ = rows.Close()
+		_ = rows.Err()
+	}()
 	for rows.Next() {
 		item := models.OrderData{}
 		err = rows.Scan(&item.Number, &item.Status, &item.UploadedAt, &item.Accrual)
@@ -218,12 +212,10 @@ func (ar *AppRepo) GetUserBalanceByID(ctx context.Context, userID int) (models.U
 	if err != nil {
 		return models.UserBalanceInfo{}, err
 	}
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			ar.logger.EasyLogCloseRowsErr(err)
-		}
-	}(rows)
+	defer func() {
+		_ = rows.Close()
+		_ = rows.Err()
+	}()
 	for rows.Next() {
 		item := models.UserBalance{}
 		err = rows.Scan(&item.UserID, &item.Current, &item.Withdraw)
@@ -293,12 +285,10 @@ func (ar *AppRepo) CheckOrderForWithdraw(ctx context.Context, userID int, orderN
 	if err != nil {
 		return err
 	}
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			ar.logger.EasyLogCloseRowsErr(err)
-		}
-	}(rows)
+	defer func() {
+		_ = rows.Close()
+		_ = rows.Err()
+	}()
 	for rows.Next() {
 		item := models.OrderInfo{}
 		err = rows.Scan(&item.UserID, &item.Number)
@@ -332,7 +322,6 @@ func (ar *AppRepo) AddAccrualPoints(ctx context.Context, userID int, sum float32
 	}
 	// if ok - make withdraw
 	newBalance := balanceInfo.Current + sum
-	fmt.Println("NEW USER BALANCE: ", newBalance)
 	// setting new values in user_balance table
 	sqlString := fmt.Sprintf("UPDATE user_balance SET current_balance = %v WHERE user_id = %v;", newBalance, userID)
 	_, err = ar.db.ExecContext(ctx, sqlString)
@@ -367,12 +356,10 @@ func (ar *AppRepo) GetUserIDByOrderNum(ctx context.Context, orderNum string) (mo
 	if err != nil {
 		return models.OrderOwner{}, err
 	}
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			ar.logger.EasyLogCloseRowsErr(err)
-		}
-	}(rows)
+	defer func() {
+		_ = rows.Close()
+		_ = rows.Err()
+	}()
 	for rows.Next() {
 		item := models.OrderOwner{}
 		err = rows.Scan(&item.UserID)
@@ -391,12 +378,10 @@ func (ar *AppRepo) GetAllOpenedOrders(ctx context.Context) ([]string, error) {
 	if err != nil {
 		return []string{}, err
 	}
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			ar.logger.EasyLogCloseRowsErr(err)
-		}
-	}(rows)
+	defer func() {
+		_ = rows.Close()
+		_ = rows.Err()
+	}()
 	for rows.Next() {
 		item := models.OrderNumber{}
 		err = rows.Scan(&item.Number)
@@ -415,12 +400,10 @@ func (ar *AppRepo) GetUserWithdrawals(ctx context.Context, userID int) (models.W
 	if err != nil {
 		return models.Withdrawals{}, err
 	}
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			ar.logger.EasyLogCloseRowsErr(err)
-		}
-	}(rows)
+	defer func() {
+		_ = rows.Close()
+		_ = rows.Err()
+	}()
 	for rows.Next() {
 		item := models.WithdrawInfo{}
 		err = rows.Scan(&item.Order, &item.Sum, &item.ProcessedAt)
@@ -439,12 +422,10 @@ func (ar *AppRepo) GetOrder(ctx context.Context, orderNum string) (models.Single
 	if err != nil {
 		return models.SingleOrder{}, err
 	}
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			ar.logger.EasyLogCloseRowsErr(err)
-		}
-	}(rows)
+	defer func() {
+		_ = rows.Close()
+		_ = rows.Err()
+	}()
 	for rows.Next() {
 		item := models.SingleOrder{}
 		err = rows.Scan(&item.Order, &item.Status, &item.Accrual)
