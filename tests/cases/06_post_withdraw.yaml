@@ -5,7 +5,7 @@
     session_token: test_token1
 
   request: |
-    {"order": "666", "sum": 25}
+    {"order": "79927398713", "sum": 25}
 
   response:
     200: |
@@ -16,7 +16,7 @@
   path: /api/user/balance/withdraw
 
   request: |
-    {"order": "666", "sum": 25}
+    {"order": "79927398713", "sum": 25}
 
   response:
     401: |
@@ -29,7 +29,7 @@
     session_token: test_token1
 
   request: |
-    {"order": "666", "sum": 825}
+    {"order": "79927398713", "sum": 825}
 
   response:
     402: |
@@ -42,11 +42,11 @@
     session_token: test_token1
 
   request: |
-    {"order": "6667", "sum": 25}
+    {"order": "79927398714", "sum": 25}
 
   response:
     422: |
-      {"error":"order not found"}
+      {"error":"invalid order number"}
 
 - name: списание средств - негативный кейс - ошибка валидации тела запроса
   method: POST
@@ -60,3 +60,4 @@
   response:
     400: |
       {"error":"invalid order number / order sum"}
+

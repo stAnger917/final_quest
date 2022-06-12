@@ -1,4 +1,14 @@
 - name: получение списка заказов - позитивный кейс c сортировкой
+  mocks:
+    loyality:
+      strategy: constant
+      body: >
+        {
+          "status": "ok"
+        }
+      headers:
+        Content-Type: application/json
+      statusCode: 204
   method: GET
   path: /api/user/orders
   cookies:
@@ -9,6 +19,16 @@
       [{"number":"666","status":"REGISTERED","uploaded_at":"2022-05-25T16:43:51+03:00"},{"number":"555","status":"REGISTERED","uploaded_at":"2022-05-26T16:43:51+03:00"},{"number":"777","status":"REGISTERED","uploaded_at":"2022-05-27T16:43:51+03:00"}]
 
 - name: получение списка заказов - позитивный кейс пустой список
+  mocks:
+    loyality:
+      strategy: constant
+      body: >
+        {
+          "status": "ok"
+        }
+      headers:
+        Content-Type: application/json
+      statusCode: 204
   method: GET
   path: /api/user/orders
   cookies:

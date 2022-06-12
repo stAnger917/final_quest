@@ -1,4 +1,14 @@
 - name: сохранение номера заказа - позитивный кейс
+  mocks:
+    loyality:
+      strategy: constant
+      body: >
+        {
+          "status": "ok"
+        }
+      headers:
+            Content-Type: application/json
+      statusCode: 204
   method: POST
   path: /api/user/orders
   cookies:
@@ -12,7 +22,17 @@
     202: |
       {"status": "ok"}
 
-- name: сохранение номера заказа - негативный кейс - заказ был уже загружен
+- name: сохранение номера заказа - негативный кейс - заказ был уже
+  mocks:
+    loyality:
+      strategy: constant
+      body: >
+        {
+          "status": "ok"
+        }
+      headers:
+        Content-Type: application/json
+      statusCode: 204
   method: POST
   path: /api/user/orders
   cookies:
@@ -27,6 +47,16 @@
       {"status":"already uploaded!"}
 
 - name: сохранение номера заказа - негативный кейс - заказ загружен другим пользователем
+  mocks:
+    loyality:
+      strategy: constant
+      body: >
+        {
+          "status": "ok"
+        }
+      headers:
+        Content-Type: application/json
+      statusCode: 204
   method: POST
   path: /api/user/orders
   cookies:
@@ -41,6 +71,16 @@
       {"error":"already uploaded by another user!"}
 
 - name: сохранение номера заказа - негативный кейс - невалидный номер заказа
+  mocks:
+    loyality:
+      strategy: constant
+      body: >
+        {
+          "status": "ok"
+        }
+      headers:
+        Content-Type: application/json
+      statusCode: 204
   method: POST
   path: /api/user/orders
   cookies:

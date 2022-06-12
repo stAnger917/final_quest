@@ -6,7 +6,7 @@
 
   response:
     200: |
-      {"current":425,"withdraw":25.5}
+      {"current":425,"withdrawn":25.5}
 
 - name: получение баланса пользователя - негативный кейс - запрос без токена
   method: GET

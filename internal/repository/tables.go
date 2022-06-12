@@ -87,10 +87,10 @@ func (ar *AppRepo) PrepareTestData() error {
 		return err
 	}
 	defaultStatus := "REGISTERED"
-	ordersNumbers := [3]string{"555", "666", "777"}
+	ordersNumbers := [3]int{79927398713, 79927398714, 79927398715}
 	time := [3]string{"2022-05-26T16:43:51+03:00", "2022-05-25T16:43:51+03:00", "2022-05-27T16:43:51+03:00"}
 	for i, v := range ordersNumbers {
-		sqlString := fmt.Sprintf("insert into user_orders (user_id, orders_number, orders_status, uploaded_at) values ('%v', '%s', '%s', '%s')", userID, v, defaultStatus, time[i])
+		sqlString := fmt.Sprintf("insert into user_orders (user_id, orders_number, orders_status, uploaded_at, accrual) values ('%v', '%v', '%s', '%s', 0)", userID, v, defaultStatus, time[i])
 		_, err := ar.db.Exec(sqlString)
 		if err != nil {
 			return err
