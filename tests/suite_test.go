@@ -52,6 +52,7 @@ func TestFuncCases(t *testing.T) {
 	if err != nil {
 		logger.EasyLogFatal("tests", "failed to prepare db test data", "", err)
 	}
+
 	authmw.PrepareTestTokens()
 	defer srv.Close()
 	defer dbClient.Close()
