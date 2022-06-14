@@ -1,0 +1,63 @@
+- name: списание средств - позитивный кейс
+  method: POST
+  path: /api/user/balance/withdraw
+  cookies:
+    session_token: test_token1
+
+  request: |
+    {"order": "79927398713", "sum": 25}
+
+  response:
+    200: |
+      {"status": "ok"}
+
+- name: списание средств - негативный кейс - запрос без токена
+  method: POST
+  path: /api/user/balance/withdraw
+
+  request: |
+    {"order": "79927398713", "sum": 25}
+
+  response:
+    401: |
+      {"error":"invalid token!"}
+
+- name: списание средств - негативный кейс - недостаточно средств
+  method: POST
+  path: /api/user/balance/withdraw
+  cookies:
+    session_token: test_token1
+
+  request: |
+    {"order": "79927398713", "sum": 825}
+
+  response:
+    402: |
+      {"error":"not enough founds"}
+
+- name: списание средств - негативный кейс - неверный номер заказа
+  method: POST
+  path: /api/user/balance/withdraw
+  cookies:
+    session_token: test_token1
+
+  request: |
+    {"order": "79927398714", "sum": 25}
+
+  response:
+    422: |
+      {"error":"invalid order number"}
+
+- name: списание средств - негативный кейс - ошибка валидации тела запроса
+  method: POST
+  path: /api/user/balance/withdraw
+  cookies:
+    session_token: test_token1
+
+  request: |
+    {"order": "6667"}
+
+  response:
+    400: |
+      {"error":"invalid order number / order sum"}
+

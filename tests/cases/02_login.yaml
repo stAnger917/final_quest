@@ -1,0 +1,42 @@
+- name: аутентификация пользователя - позитивный кейс
+
+  method: POST
+  path: /api/user/login
+  request: |
+    {
+      "login": "test_user",
+      "password": "test_password"
+    }
+
+  response:
+    200: |
+      {
+        "message": "welcome"
+      }
+
+- name: аутентификация пользователя - негативный кейс - неверная пара логин/пароль
+
+  method: POST
+  path: /api/user/login
+  request: |
+    {
+      "login": "test_user1",
+      "password": "test_password"
+    }
+
+  response:
+    401: |
+      {"message":"login/password mismatch"}
+
+- name: аутентификация пользователя - негативный кейс - невалидное тело запроса
+
+  method: POST
+  path: /api/user/login
+  request: |
+    {
+      "password": "test_password"
+    }
+
+  response:
+    400: |
+      {"message": "empty email / password in request body denied"}
